@@ -1,4 +1,4 @@
-package com.salaoAPI.api;
+package com.salaoAPI;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
