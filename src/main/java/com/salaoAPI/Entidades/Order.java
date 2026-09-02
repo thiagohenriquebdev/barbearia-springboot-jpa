@@ -1,7 +1,10 @@
 package com.salaoAPI.Entidades;
 
-import java.time.LocalTime;
+import java.time.Instant;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,21 +12,36 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import tools.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 
 @Entity
-public class Servico {
+@Table (name ="tb_order")
+public class Order {
 	
 	@Id
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id;
-	private LocalTime dataSaida;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
+	private Instant dataSaida;
+	
 	
 	@ManyToOne
 	@JoinColumn(name = "cliente_id")
 	private Cliente cliente;
 	
-	public Servico () {
+	public Order () {
 	}
+
+	public Order(Long id, Instant dataSaida, Cliente cliente) {
+		super();
+		this.id = id;
+		this.dataSaida = dataSaida;
+		this.cliente = cliente;
+	}
+
+
 
 	public Long getId() {
 		return id;
@@ -33,11 +51,11 @@ public class Servico {
 		this.id = id;
 	}
 
-	public LocalTime getDataSaida() {
+	public Instant getDataSaida() {
 		return dataSaida;
 	}
 
-	public void setDataSaida(LocalTime dataSaida) {
+	public void setDataSaida(Instant dataSaida) {
 		this.dataSaida = dataSaida;
 	}
 
@@ -62,7 +80,7 @@ public class Servico {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Servico other = (Servico) obj;
+		Order other = (Order) obj;
 		return Objects.equals(id, other.id);
 	}
 	

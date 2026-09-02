@@ -1,10 +1,14 @@
 package com.salaoAPI.Entidades;
 
 import java.io.Serializable;
-import java.time.LocalTime;
+import java.time.Instant;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,18 +23,20 @@ public class Cliente implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 	private String name;
-	private LocalTime dataChegada;
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
+	private Instant dataChegada;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")
-	List<Servico>servicos = new ArrayList<>();
+	List<Order>servicos = new ArrayList<>();
 	
 	
 	public Cliente() {
 	}
 	
-	public Cliente(long id, String name, LocalTime dataChegada) {
+	public Cliente(Long id, String name, Instant dataChegada) {
 		this.id = id;
 		this.name = name;
 		this.dataChegada = dataChegada;
@@ -56,13 +62,17 @@ public class Cliente implements Serializable{
 	}
 
 
-	public LocalTime getDataChegada() {
+	public Instant getDataChegada() {
 		return dataChegada;
 	}
 
 
-	public void setDataChegada(LocalTime dataChegada) {
+	public void setDataChegada(Instant dataChegada) {
 		this.dataChegada = dataChegada;
+	}
+	
+	public List<Order> getServicos() {
+		return servicos;
 	}
 
 	@Override
@@ -81,12 +91,5 @@ public class Cliente implements Serializable{
 		Cliente other = (Cliente) obj;
 		return id == other.id;
 	}
-	
-	
-	
-	
-	
-	
-	
 	
 }

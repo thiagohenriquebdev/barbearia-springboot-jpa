@@ -9,27 +9,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.salaoAPI.Entidades.Cliente;
-import com.salaoAPI.services.ClienteService;
+import com.salaoAPI.Entidades.Order;
+import com.salaoAPI.services.OrderService;
 
 import jakarta.websocket.server.PathParam;
 
 @RestController
-@RequestMapping (value = "/clientes")
-public class ClienteResource {
+@RequestMapping (value = "/orders")
+public class OrderResource {
 	
 	@Autowired
-	private ClienteService service;
+	private OrderService service;
 	
 	@GetMapping
-	public ResponseEntity<List<Cliente>> findall() {
-		List <Cliente> list = service.findAll();
+	public ResponseEntity<List<Order>> findall() {
+		List <Order> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 	
 	@GetMapping (value = "/{id}")
-	public ResponseEntity<Cliente> FindById(@PathVariable Long id) {
-		Cliente obj =service.FindById(id);
+	public ResponseEntity<Order> FindById(@PathVariable Long id) {
+		Order obj =service.FindById(id);
 		return ResponseEntity.ok().body(obj);
 		
 	}
