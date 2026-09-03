@@ -25,8 +25,12 @@ public class Cliente implements Serializable{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
+	
 	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
 	private Instant dataChegada;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
+	private Instant dataSaida;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")
@@ -65,6 +69,14 @@ public class Cliente implements Serializable{
 	public Instant getDataChegada() {
 		return dataChegada;
 	}
+	
+	public Instant getDataSaida() {
+		return dataSaida;
+	}
+
+	public void setDataSaida(Instant dataSaida) {
+		this.dataSaida = dataSaida;
+	}
 
 
 	public void setDataChegada(Instant dataChegada) {
@@ -91,5 +103,8 @@ public class Cliente implements Serializable{
 		Cliente other = (Cliente) obj;
 		return id == other.id;
 	}
+
+
+	
 	
 }

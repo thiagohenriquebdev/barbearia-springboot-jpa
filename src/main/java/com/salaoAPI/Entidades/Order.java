@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.salaoAPI.Entidades.enums.OrderStatus;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import tools.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 
 @Entity
 @Table (name ="tb_order")
@@ -23,8 +22,7 @@ public class Order {
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
-	private Instant dataSaida;
+	private Integer orderStatus;
 	
 	
 	@ManyToOne
@@ -34,10 +32,10 @@ public class Order {
 	public Order () {
 	}
 
-	public Order(Long id, Instant dataSaida, Cliente cliente) {
+	public Order(Long id,OrderStatus orderStatus, Cliente cliente) {
 		super();
 		this.id = id;
-		this.dataSaida = dataSaida;
+		setOrderStatus(orderStatus);
 		this.cliente = cliente;
 	}
 
@@ -51,14 +49,6 @@ public class Order {
 		this.id = id;
 	}
 
-	public Instant getDataSaida() {
-		return dataSaida;
-	}
-
-	public void setDataSaida(Instant dataSaida) {
-		this.dataSaida = dataSaida;
-	}
-
 	public Cliente getCliente() {
 		return cliente;
 	}
@@ -66,6 +56,16 @@ public class Order {
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
+	
+	public OrderStatus getOrderStatus() {
+		return OrderStatus.valueOf(orderStatus);
+	}
+
+	public void setOrderStatus(OrderStatus orderStatus) {
+		if (orderStatus != null) {
+		this.orderStatus = orderStatus.getCode();
+	}
+}
 
 	@Override
 	public int hashCode() {
@@ -83,11 +83,5 @@ public class Order {
 		Order other = (Order) obj;
 		return Objects.equals(id, other.id);
 	}
-	
-	
-	
-	
-	
-	
 
 }
