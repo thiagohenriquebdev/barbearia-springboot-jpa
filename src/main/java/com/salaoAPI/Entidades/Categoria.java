@@ -1,13 +1,23 @@
 package com.salaoAPI.Entidades;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
+import org.hibernate.annotations.ManyToAny;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table (name = "tb_categoria")
@@ -20,10 +30,13 @@ public class Categoria implements Serializable {
 	private Long id;
 	private String name;
 	
+	@JsonIgnore
+	@ManyToMany(mappedBy = "categorias")
+	Set <Produto> produtos = new HashSet<>();
+	
 	public Categoria () {
 	}
-	
-	
+
 	public Categoria(Long id, String name) {
 		super();
 		this.id = id;
@@ -49,7 +62,10 @@ public class Categoria implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
+	public Set<Produto> getProdutos() {
+		return produtos;
+	}
 
 	@Override
 	public int hashCode() {

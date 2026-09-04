@@ -1,9 +1,10 @@
 package com.salaoAPI.Entidades;
 
-import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salaoAPI.Entidades.enums.OrderStatus;
 
 import jakarta.persistence.Entity;
@@ -12,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,6 +30,9 @@ public class Order {
 	@ManyToOne
 	@JoinColumn(name = "cliente_id")
 	private Cliente cliente;
+	
+	@OneToMany (mappedBy = "id.order")
+	private Set<OrderItem> items = new HashSet<>();
 	
 	public Order () {
 	}
@@ -66,6 +71,9 @@ public class Order {
 		this.orderStatus = orderStatus.getCode();
 	}
 }
+	public Set<OrderItem> getItems() {
+		return items;
+	}
 
 	@Override
 	public int hashCode() {
