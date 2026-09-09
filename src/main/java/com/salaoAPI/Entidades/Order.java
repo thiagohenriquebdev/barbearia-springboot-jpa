@@ -100,6 +100,14 @@ public class Order {
 	public void setPagamento(Pagamento pagamento) {
 		this.pagamento = pagamento;
 	}
+	
+	public Double getTotal() {
+		double soma = 0.0;
+		for (OrderItem x : items) {
+			soma+=x.getSubTotal();
+		}
+		return soma;
+	}
 
 	@Override
 	public int hashCode() {
