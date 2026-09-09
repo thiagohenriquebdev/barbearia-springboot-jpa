@@ -29,9 +29,6 @@ public class Cliente implements Serializable{
 	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
 	private Instant dataChegada;
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
-	private Instant dataSaida;
-	
 	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")
 	List<Order>servicos = new ArrayList<>();
@@ -69,15 +66,6 @@ public class Cliente implements Serializable{
 	public Instant getDataChegada() {
 		return dataChegada;
 	}
-	
-	public Instant getDataSaida() {
-		return dataSaida;
-	}
-
-	public void setDataSaida(Instant dataSaida) {
-		this.dataSaida = dataSaida;
-	}
-
 
 	public void setDataChegada(Instant dataChegada) {
 		this.dataChegada = dataChegada;

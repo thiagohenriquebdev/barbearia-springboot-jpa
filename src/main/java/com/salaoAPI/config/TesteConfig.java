@@ -12,6 +12,7 @@ import com.salaoAPI.Entidades.Categoria;
 import com.salaoAPI.Entidades.Cliente;
 import com.salaoAPI.Entidades.Order;
 import com.salaoAPI.Entidades.OrderItem;
+import com.salaoAPI.Entidades.Pagamento;
 import com.salaoAPI.Entidades.Produto;
 import com.salaoAPI.Entidades.enums.OrderStatus;
 import com.salaoAPI.repositories.CategoriaRepository;
@@ -58,15 +59,15 @@ public class TesteConfig implements CommandLineRunner {
 		
 		produtoRepository.saveAll(Arrays.asList(p1,p2,p3));
 		
-		Cliente u1 = new Cliente(null, "Maria",Instant.now());
+		Cliente u1 = new Cliente(null, "Maria",Instant.parse("2026-05-08T15:11:22Z"));
 		Cliente u2 = new Cliente(null, "Ana",Instant.now());
 		Cliente u3 = new Cliente(null, "Joao",Instant.now());
 		
 		clienteRepository.saveAll(Arrays.asList(u1,u2,u3));
 		
-		Order o1 = new Order(null ,OrderStatus.AGUARDANDO_FILA,u1);
-		Order o2 = new Order(null ,OrderStatus.ATENDIMENTO,u1);
-		Order o3 = new Order(null ,OrderStatus.FINALIZADO,u2);
+		Order o1 = new Order(null,OrderStatus.AGUARDANDO_FILA,u1.getDataChegada(), u1);
+		Order o2 = new Order(null ,OrderStatus.ATENDIMENTO,Instant.parse("2026-05-08T16:11:22Z"),u1);
+		Order o3 = new Order(null ,OrderStatus.FINALIZADO,Instant.parse("2026-05-08T17:11:22Z"),u2);
 
 		orderRepository.saveAll(Arrays.asList(o1,o2,o3));
 		
@@ -75,6 +76,11 @@ public class TesteConfig implements CommandLineRunner {
 		OrderItem oi3 = new OrderItem(o3, p1, 1, p1.getValor());
 		
 		orderItemRepository.saveAll(Arrays.asList(oi1,oi2,oi3));
+		
+		Pagamento pay1 = new Pagamento(null, Instant.now(), o1);
+		o1.setPagamento(pay1);
+		
+		orderRepository.save(o1);
 	}
 
 }

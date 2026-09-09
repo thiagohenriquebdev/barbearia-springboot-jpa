@@ -1,12 +1,14 @@
 package com.salaoAPI.Entidades;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.salaoAPI.Entidades.enums.OrderStatus;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -23,6 +26,9 @@ public class Order {
 	@Id
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
+	private Instant inicioAtendimento;
 	
 	private Integer orderStatus;
 	
@@ -34,12 +40,16 @@ public class Order {
 	@OneToMany (mappedBy = "id.order")
 	private Set<OrderItem> items = new HashSet<>();
 	
+	@OneToOne (mappedBy = "order" , cascade = CascadeType.ALL)
+	private Pagamento pagamento;
+	
 	public Order () {
 	}
 
-	public Order(Long id,OrderStatus orderStatus, Cliente cliente) {
+	public Order(Long id,OrderStatus orderStatus,Instant inicioAtendimento, Cliente cliente) {
 		super();
 		this.id = id;
+		this.inicioAtendimento=inicioAtendimento;
 		setOrderStatus(orderStatus);
 		this.cliente = cliente;
 	}
@@ -52,6 +62,14 @@ public class Order {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Instant getInicioAtendimento() {
+		return inicioAtendimento;
+	}
+
+	public void setInicioAtendimento(Instant inicioAtendimento) {
+		this.inicioAtendimento = inicioAtendimento;
 	}
 
 	public Cliente getCliente() {
@@ -73,6 +91,14 @@ public class Order {
 }
 	public Set<OrderItem> getItems() {
 		return items;
+	}
+	
+	public Pagamento getPagamento() {
+		return pagamento;
+	}
+
+	public void setPagamento(Pagamento pagamento) {
+		this.pagamento = pagamento;
 	}
 
 	@Override
