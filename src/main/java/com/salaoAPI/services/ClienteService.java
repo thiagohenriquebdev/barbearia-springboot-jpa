@@ -23,4 +23,13 @@ public class ClienteService {
 		Optional<Cliente> obj = repository.findById(id);
 		return obj.get();
 	}
+	
+	public Cliente insert (Cliente obj) {
+		return repository.save(obj);
+	}
+	
+	public void delete (Long id) {
+		repository.deleteById(id);
+	}
+	
 }
