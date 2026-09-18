@@ -6,21 +6,21 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.salaoAPI.Entidades.Order;
-import com.salaoAPI.repositories.OrderRepository;
+import com.salaoAPI.Entidades.InicioAtendimento;
+import com.salaoAPI.repositories.InicioAtendimentoRepository;
 
 @Service
 public class OrderService {
 
 	@Autowired
-	private OrderRepository repository;
+	private InicioAtendimentoRepository repository;
 	
-	public List <Order> findAll() {
+	public List <InicioAtendimento> findAll() {
 		return repository.findAll();
 	}
 	
-	public Order FindById(Long id) {
-		Optional<Order> obj = repository.findById(id);
+	public InicioAtendimento FindById(Long id) {
+		Optional<InicioAtendimento> obj = repository.findById(id);
 		return obj.get();
 	}
 }

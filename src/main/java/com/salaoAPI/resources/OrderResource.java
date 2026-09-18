@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.salaoAPI.Entidades.Order;
+import com.salaoAPI.Entidades.InicioAtendimento;
 import com.salaoAPI.services.OrderService;
 
 import jakarta.websocket.server.PathParam;
@@ -22,14 +22,14 @@ public class OrderResource {
 	private OrderService service;
 	
 	@GetMapping
-	public ResponseEntity<List<Order>> findall() {
-		List <Order> list = service.findAll();
+	public ResponseEntity<List<InicioAtendimento>> findall() {
+		List <InicioAtendimento> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 	
 	@GetMapping (value = "/{id}")
-	public ResponseEntity<Order> FindById(@PathVariable Long id) {
-		Order obj =service.FindById(id);
+	public ResponseEntity<InicioAtendimento> FindById(@PathVariable Long id) {
+		InicioAtendimento obj =service.FindById(id);
 		return ResponseEntity.ok().body(obj);
 		
 	}

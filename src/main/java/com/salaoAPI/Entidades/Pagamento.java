@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -23,21 +24,22 @@ public class Pagamento implements Serializable {
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long Id;
 	
-	private Instant momento;
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "HH:mm:ss",timezone = "america/Sao_Paulo")
+	private Instant dataFinalizado;
 	
 	@JsonIgnore
 	@OneToOne
 	@MapsId
-	private Order order;
+	private InicioAtendimento order;
 	
 	
 	public Pagamento () {
 	}
 	
-	public Pagamento(Long id, Instant momento, Order order) {
+	public Pagamento(Long id, Instant dataFinalizado, InicioAtendimento order) {
 		super();
 		Id = id;
-		this.momento = momento;
+		this.dataFinalizado = dataFinalizado;
 		this.order = order;
 	}
 
@@ -51,22 +53,22 @@ public class Pagamento implements Serializable {
 	}
 
 
-	public Instant getMomento() {
-		return momento;
+	public Instant getdataFinalizado() {
+		return dataFinalizado;
 	}
 
 
-	public void setMomento(Instant momento) {
-		this.momento = momento;
+	public void setdataFinalizado(Instant dataFinalizado) {
+		this.dataFinalizado = dataFinalizado;
 	}
 
 
-	public Order getOrder() {
+	public InicioAtendimento getOrder() {
 		return order;
 	}
 
 
-	public void setOrder(Order order) {
+	public void setOrder(InicioAtendimento order) {
 		this.order = order;
 	}
 

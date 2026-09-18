@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.salaoAPI.Entidades.enums.OrderStatus;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,18 +21,16 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table (name ="tb_order")
-public class Order {
+@Table (name ="tb_inicioAtendimento")
+public class InicioAtendimento {
 	
 	@Id
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",timezone = "GMT")
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "HH:mm:ss",timezone = "America/Sao_Paulo")
+	@Column (nullable = false)
 	private Instant inicioAtendimento;
-	
-	private Integer orderStatus;
-	
 	
 	@ManyToOne
 	@JoinColumn(name = "cliente_id")
@@ -43,18 +42,15 @@ public class Order {
 	@OneToOne (mappedBy = "order" , cascade = CascadeType.ALL)
 	private Pagamento pagamento;
 	
-	public Order () {
+	public InicioAtendimento () {
 	}
 
-	public Order(Long id,OrderStatus orderStatus,Instant inicioAtendimento, Cliente cliente) {
+	public InicioAtendimento(Long id,Instant inicioAtendimento, Cliente cliente) {
 		super();
 		this.id = id;
 		this.inicioAtendimento=inicioAtendimento;
-		setOrderStatus(orderStatus);
 		this.cliente = cliente;
 	}
-
-
 
 	public Long getId() {
 		return id;
@@ -79,16 +75,7 @@ public class Order {
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
-	
-	public OrderStatus getOrderStatus() {
-		return OrderStatus.valueOf(orderStatus);
-	}
 
-	public void setOrderStatus(OrderStatus orderStatus) {
-		if (orderStatus != null) {
-		this.orderStatus = orderStatus.getCode();
-	}
-}
 	public Set<OrderItem> getItems() {
 		return items;
 	}
@@ -122,7 +109,7 @@ public class Order {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Order other = (Order) obj;
+		InicioAtendimento other = (InicioAtendimento) obj;
 		return Objects.equals(id, other.id);
 	}
 

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.salaoAPI.Entidades.Cliente;
+import com.salaoAPI.dto.ClienteAtendimentoResponse;
 import com.salaoAPI.services.ClienteService;
 
 @RestController
@@ -25,7 +26,32 @@ public class ClienteResource {
 	@Autowired
 	private ClienteService service;
 	
+	public ClienteResource (ClienteService service) {
+		this.service=service;
+	}
+	
+	@PostMapping ("/entrar")
+	public Cliente entrar(@RequestBody EntrarFilaRequest request) {
+		return service.entrarNaFila(request.nome());
+	}
+	
+	@PostMapping("/proximo")
+	public ClienteAtendimentoResponse proximo() {
+		return service.chamarProximo();
+	}
+	
+	/*@PostMapping ("/finalizar/{id}")
+	public ResponseEntity<Cliente> finalizar (@PathVariable Long id) {
+		Cliente cliente = service.finalizarAtendimento(id);
+		return ResponseEntity.ok().body(cliente);
+	}
+	*/
 	@GetMapping
+	public List<Cliente> listar (){
+		return service.listarFila();
+	}
+	
+	@GetMapping ("/all")
 	public ResponseEntity<List<Cliente>> findall() {
 		List <Cliente> list = service.findAll();
 		return ResponseEntity.ok().body(list);
@@ -37,7 +63,7 @@ public class ClienteResource {
 		return ResponseEntity.ok().body(obj);
 	}
 	
-	@PostMapping
+	@PostMapping ("/name")
 	public ResponseEntity<Cliente> insert (@RequestBody Cliente obj) {
 		obj =service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();

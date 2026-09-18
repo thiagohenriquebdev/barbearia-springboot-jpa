@@ -3,7 +3,7 @@ package com.salaoAPI.Entidades.pk;
 import java.io.Serializable;
 import java.util.Objects;
 
-import com.salaoAPI.Entidades.Order;
+import com.salaoAPI.Entidades.InicioAtendimento;
 import com.salaoAPI.Entidades.Produto;
 
 import jakarta.persistence.JoinColumn;
@@ -14,16 +14,16 @@ public class OrderItemPK implements Serializable{
 	
 	@ManyToOne
 	@JoinColumn (name = "order_id")
-	private Order order;
+	private InicioAtendimento order;
 	@ManyToOne
 	@JoinColumn (name = "produto_id")
 	private Produto produto;
 	
 	
-	public Order getOrder() {
+	public InicioAtendimento getOrder() {
 		return order;
 	}
-	public void setOrder(Order order) {
+	public void setOrder(InicioAtendimento order) {
 		this.order = order;
 	}
 	public Produto getProduto() {
