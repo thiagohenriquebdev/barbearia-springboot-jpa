@@ -98,7 +98,7 @@ public class Produto implements Serializable {
 	public Set <InicioAtendimento> getOrders() {
 		Set <InicioAtendimento> set  = new HashSet<>();
 		for (OrderItem x : items) {
-			set.add(x.getOrder());
+			set.add(x.getInicioAtendimento());
 		}
 		return set;
 	}

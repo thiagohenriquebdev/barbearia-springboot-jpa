@@ -12,12 +12,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.salaoAPI.Entidades.Cliente;
+import com.salaoAPI.Entidades.enums.StatusRecebimento;
 import com.salaoAPI.dto.ClienteAtendimentoResponse;
+import com.salaoAPI.dto.PagamentoRecebido;
 import com.salaoAPI.services.ClienteService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping (value = "/clientes")
@@ -40,12 +45,13 @@ public class ClienteResource {
 		return service.chamarProximo();
 	}
 	
-	/*@PostMapping ("/finalizar/{id}")
-	public ResponseEntity<Cliente> finalizar (@PathVariable Long id) {
-		Cliente cliente = service.finalizarAtendimento(id);
+	@PostMapping ("/finalizar/{id}")
+	public ResponseEntity<Cliente> finalizar (@PathVariable Long id ,
+			@RequestBody @Valid PagamentoRecebido pagamento) {
+		Cliente cliente = service.finalizarAtendimento(id , pagamento.getStatusRecebimento());
 		return ResponseEntity.ok().body(cliente);
 	}
-	*/
+	
 	@GetMapping
 	public List<Cliente> listar (){
 		return service.listarFila();
@@ -63,7 +69,7 @@ public class ClienteResource {
 		return ResponseEntity.ok().body(obj);
 	}
 	
-	@PostMapping ("/name")
+	@PostMapping ("/nome")
 	public ResponseEntity<Cliente> insert (@RequestBody Cliente obj) {
 		obj =service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();

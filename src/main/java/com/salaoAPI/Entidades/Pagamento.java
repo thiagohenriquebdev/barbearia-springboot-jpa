@@ -16,68 +16,48 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table (name ="tb_pagamento")
+@Table(name = "tb_pagamento")
 public class Pagamento implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
-	@GeneratedValue (strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long Id;
-	
-	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "HH:mm:ss",timezone = "america/Sao_Paulo")
-	private Instant dataFinalizado;
-	
+
 	@JsonIgnore
 	@OneToOne
 	@MapsId
-	private InicioAtendimento order;
-	
-	
-	public Pagamento () {
+	private InicioAtendimento inicioAtendimento;
+
+	public Pagamento() {
 	}
-	
-	public Pagamento(Long id, Instant dataFinalizado, InicioAtendimento order) {
+
+	public Pagamento(Long id, InicioAtendimento inicioAtendimento) {
 		super();
 		Id = id;
-		this.dataFinalizado = dataFinalizado;
-		this.order = order;
+		this.inicioAtendimento = inicioAtendimento;
 	}
 
 	public Long getId() {
 		return Id;
 	}
 
-
 	public void setId(Long id) {
 		Id = id;
 	}
 
-
-	public Instant getdataFinalizado() {
-		return dataFinalizado;
+	public InicioAtendimento getinicioAtendimento() {
+		return inicioAtendimento;
 	}
 
-
-	public void setdataFinalizado(Instant dataFinalizado) {
-		this.dataFinalizado = dataFinalizado;
+	public void setinicioAtendimento(InicioAtendimento inicioAtendimento) {
+		this.inicioAtendimento = inicioAtendimento;
 	}
-
-
-	public InicioAtendimento getOrder() {
-		return order;
-	}
-
-
-	public void setOrder(InicioAtendimento order) {
-		this.order = order;
-	}
-
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(Id);
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -90,8 +70,4 @@ public class Pagamento implements Serializable {
 		Pagamento other = (Pagamento) obj;
 		return Objects.equals(Id, other.Id);
 	}
-	
-	
-	
-	
 }

@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.salaoAPI.Entidades.enums.OrderStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,7 +38,7 @@ public class InicioAtendimento {
 	@OneToMany (mappedBy = "id.order")
 	private Set<OrderItem> items = new HashSet<>();
 	
-	@OneToOne (mappedBy = "order" , cascade = CascadeType.ALL)
+	@OneToOne (mappedBy = "inicioAtendimento" , cascade = CascadeType.ALL)
 	private Pagamento pagamento;
 	
 	public InicioAtendimento () {

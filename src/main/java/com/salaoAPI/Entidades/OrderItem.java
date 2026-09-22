@@ -6,7 +6,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salaoAPI.Entidades.pk.OrderItemPK;
 
-import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -24,9 +23,9 @@ public class OrderItem implements Serializable{
 	public OrderItem () {
 	}
 	
-	public OrderItem(InicioAtendimento order , Produto produto ,Integer quantidade, double price) {
+	public OrderItem(InicioAtendimento inicioAtendimento , Produto produto ,Integer quantidade, double price) {
 		super();
-		id.setOrder(order);
+		id.setOrder(inicioAtendimento);
 		id.setProduto(produto);
 		this.quantidade = quantidade;
 		this.price = price;
@@ -41,13 +40,13 @@ public class OrderItem implements Serializable{
 		id.setProduto(produto);
 	}
 	
-	public InicioAtendimento getOrder() {
+	public InicioAtendimento getInicioAtendimento() {
 		return id.getOrder();
 	}
 	
 	@JsonIgnore
-	public void setOrder(InicioAtendimento order) {
-		id.setOrder(order);
+	public void setInicioAtendimento(InicioAtendimento inicioAtendimento) {
+		id.setOrder(inicioAtendimento);
 	}
 
 	public Integer getQuantidade() {

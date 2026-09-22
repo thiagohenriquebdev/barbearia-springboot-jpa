@@ -13,6 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.salaoAPI.Entidades.Cliente;
 import com.salaoAPI.Entidades.InicioAtendimento;
 import com.salaoAPI.Entidades.enums.OrderStatus;
+import com.salaoAPI.Entidades.enums.StatusPagamento;
+import com.salaoAPI.Entidades.enums.StatusRecebimento;
 import com.salaoAPI.dto.ClienteAtendimentoResponse;
 import com.salaoAPI.repositories.ClienteRepository;
 import com.salaoAPI.repositories.InicioAtendimentoRepository;
@@ -33,31 +35,22 @@ public class ClienteService {
 	}
 	
 	public Cliente entrarNaFila(String nome) {
-		Cliente cliente = repository.findByName(nome).orElseGet(() -> {Cliente novo = new Cliente();
-		novo.setName(nome);
+		Cliente cliente = repository.findByNome(nome).orElseGet(() -> {Cliente novo = new Cliente();
+		novo.setNome(nome);
 		return novo;
 		});
 		cliente.setDataChegada(Instant.now());
-		cliente.setStatus(OrderStatus.AGUARDANDO_FILA);
+		cliente.setStatusAtendimento(OrderStatus.AGUARDANDO_FILA);
+		cliente.setStatusPagamento(StatusPagamento.PENDENTE);
 		
 		return repository.save(cliente);
 	}
-	
-	/*public Cliente finalizarAtendimento (Long id) {
-		Cliente cliente = repository.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "Cliente Nao Encontrado"));
 		
-		(Instant.now());
-		cliente.setStatus(OrderStatus.FINALIZADO);
-		return repository.save(cliente);
-	}
-		*/
-	
 	public ClienteAtendimentoResponse chamarProximo() {
-		Cliente proximo = repository.findFirstByStatusOrderByDataChegadaAsc(OrderStatus.AGUARDANDO_FILA)
+		Cliente proximo = repository.findFirstByStatusAtendimentoOrderByDataChegadaAsc(OrderStatus.AGUARDANDO_FILA)
 				.orElseThrow(() -> new ResponseStatusException (HttpStatus.NOT_FOUND, "Fila Vazia"));
 		
-		proximo.setStatus(OrderStatus.ATENDIMENTO);
+		proximo.setStatusAtendimento(OrderStatus.ATENDIMENTO);
 		
 		InicioAtendimento inicioAtendimento = new InicioAtendimento();
 		inicioAtendimento.setInicioAtendimento(Instant.now());
@@ -66,13 +59,28 @@ public class ClienteService {
 		inicioRepository.save(inicioAtendimento);		
 		repository.save(proximo);
 		
-		return new ClienteAtendimentoResponse(proximo.getName() , inicioAtendimento.getInicioAtendimento());
+		return new ClienteAtendimentoResponse(proximo.getNome() , inicioAtendimento.getInicioAtendimento());
 	}
 	
 	public List <Cliente> listarFila () {
-		return repository.findByStatusOrderByDataChegadaAsc(OrderStatus.AGUARDANDO_FILA);
+		return repository.findByStatusAtendimentoOrderByDataChegadaAsc(OrderStatus.AGUARDANDO_FILA);
 	}
 	
+	
+	public Cliente finalizarAtendimento (Long id , StatusRecebimento statusRecebimento) {
+		Cliente cliente = repository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "Cliente Nao Encontrado"));
+		
+		if (cliente.getStatusAtendimento()!=OrderStatus.ATENDIMENTO) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Cliente Nao Esta Em Atendimento ") ;
+		}
+	
+		cliente.setStatusAtendimento(OrderStatus.FINALIZADO);
+		cliente.setStatusPagamento(StatusPagamento.PAGO);
+		cliente.setStatusRecebimento(statusRecebimento);
+		cliente.setDataFinalizacao(Instant.now());
+		return repository.save(cliente);
+	}
 	
 	
 	public List <Cliente> findAll() {
@@ -106,7 +114,7 @@ public class ClienteService {
 	}
 
 	private void updateData(Cliente entity, Cliente obj) {
-		entity.setName(obj.getName());
+		entity.setNome(obj.getNome());
 		entity.setDataChegada(obj.getDataChegada());		
 	}
 	

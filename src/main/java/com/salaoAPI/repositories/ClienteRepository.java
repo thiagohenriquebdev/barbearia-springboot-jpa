@@ -10,10 +10,10 @@ import com.salaoAPI.Entidades.enums.OrderStatus;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Long>{
 	
-	Optional<Cliente> findFirstByStatusOrderByDataChegadaAsc (OrderStatus status);
+	Optional<Cliente> findFirstByStatusAtendimentoOrderByDataChegadaAsc(OrderStatus statusAtendimento);
 	
-	List<Cliente> findByStatusOrderByDataChegadaAsc(OrderStatus status);
+	List<Cliente> findByStatusAtendimentoOrderByDataChegadaAsc(OrderStatus statusAtendimento);
 	
-	Optional<Cliente> findByName (String name);
+	Optional<Cliente> findByNome (String nome);
  
 }

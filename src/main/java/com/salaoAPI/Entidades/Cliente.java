@@ -9,6 +9,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.salaoAPI.Entidades.enums.OrderStatus;
+import com.salaoAPI.Entidades.enums.StatusPagamento;
+import com.salaoAPI.Entidades.enums.StatusRecebimento;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,13 +31,22 @@ public class Cliente implements Serializable{
 	private Long id;
 	
 	@Column (nullable =false , unique = true)
-	private String name; // entrada de dados do cliente (Dados Unicos , Nao Pode Ser Repetido)
+	private String nome; // entrada de dados do cliente (Dados Unicos , Nao Pode Ser Repetido)
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "HH:mm:ss",timezone = "America/Sao_Paulo")
 	private Instant dataChegada;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "HH:mm:ss",timezone = "America/Sao_Paulo")
+	private Instant dataFinalizacao;
+	
 	@Enumerated (EnumType.STRING)
-	private OrderStatus status;
+	private OrderStatus statusAtendimento;
+	
+	@Enumerated (EnumType.STRING)
+	private StatusPagamento statusPagamento;
+	
+	@Enumerated (EnumType.STRING)
+	private StatusRecebimento statusRecebimento;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")
@@ -45,11 +56,14 @@ public class Cliente implements Serializable{
 	public Cliente() {
 	}
 	
-	public Cliente(Long id, String name,OrderStatus status, Instant dataChegada) {
+	public Cliente(Long id, String nome,OrderStatus statusAtendimento,StatusPagamento statusPagamento, Instant dataChegada,Instant dataFinalizacao,StatusRecebimento statusRecebimento) {
 		this.id = id;
-		this.name = name;
-		this.status=status;
+		this.nome = nome;
+		this.statusAtendimento=statusAtendimento;
+		this.statusPagamento=statusPagamento;
+		this.statusRecebimento=statusRecebimento;
 		this.dataChegada = dataChegada;
+		this.dataFinalizacao=dataFinalizacao;
 	}
 
 	public long getId() {
@@ -62,32 +76,56 @@ public class Cliente implements Serializable{
 	}
 
 
-	public String getName() {
-		return name;
+	public String getNome() {
+		return nome;
 	}
 
 
-	public void setName(String name) {
-		this.name = name;
+	public void setNome(String nome) {
+		this.nome = nome;
 	}
 
 
 	public Instant getDataChegada() {
 		return dataChegada;
 	}
-
-	public OrderStatus getStatus() {
-		return status;
+	
+	public OrderStatus getStatusAtendimento() {
+		return statusAtendimento;
 	}
 
-	public void setStatus(OrderStatus status) {
-		this.status = status;
+	public void setStatusAtendimento(OrderStatus statusAtendimento) {
+		this.statusAtendimento = statusAtendimento;
+	}
+
+	public StatusPagamento getStatusPagamento() {
+		return statusPagamento;
+	}
+
+	public void setStatusPagamento(StatusPagamento statusPagamento) {
+		this.statusPagamento = statusPagamento;
+	}
+
+	public StatusRecebimento getStatusRecebimento() {
+		return statusRecebimento;
+	}
+
+	public void setStatusRecebimento(StatusRecebimento statusRecebimento) {
+		this.statusRecebimento = statusRecebimento;
 	}
 
 	public void setDataChegada(Instant dataChegada) {
 		this.dataChegada = dataChegada;
 	}
 	
+	public Instant getDataFinalizacao() {
+		return dataFinalizacao;
+	}
+
+	public void setDataFinalizacao(Instant dataFinalizacao) {
+		this.dataFinalizacao = dataFinalizacao;
+	}
+
 	public List<InicioAtendimento> getServicos() {
 		return servicos;
 	}
