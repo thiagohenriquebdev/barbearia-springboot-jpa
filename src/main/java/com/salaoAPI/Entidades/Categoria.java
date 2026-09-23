@@ -1,4 +1,4 @@
-package com.salaoAPI.Entidades;
+package com.salaoAPI.entidades;
 
 import java.io.Serializable;
 import java.util.HashSet;

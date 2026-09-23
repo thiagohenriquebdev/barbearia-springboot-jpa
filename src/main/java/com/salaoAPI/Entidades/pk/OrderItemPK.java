@@ -1,10 +1,10 @@
-package com.salaoAPI.Entidades.pk;
+package com.salaoAPI.entidades.pk;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-import com.salaoAPI.Entidades.InicioAtendimento;
-import com.salaoAPI.Entidades.Produto;
+import com.salaoAPI.entidades.InicioAtendimento;
+import com.salaoAPI.entidades.Produto;
 
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;

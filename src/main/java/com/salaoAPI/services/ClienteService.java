@@ -10,12 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.salaoAPI.Entidades.Cliente;
-import com.salaoAPI.Entidades.InicioAtendimento;
-import com.salaoAPI.Entidades.enums.OrderStatus;
-import com.salaoAPI.Entidades.enums.StatusPagamento;
-import com.salaoAPI.Entidades.enums.StatusRecebimento;
 import com.salaoAPI.dto.ClienteAtendimentoResponse;
+import com.salaoAPI.entidades.Cliente;
+import com.salaoAPI.entidades.InicioAtendimento;
+import com.salaoAPI.entidades.enums.StatusAtendimento;
+import com.salaoAPI.entidades.enums.StatusPagamento;
+import com.salaoAPI.entidades.enums.FormaPagamento;
 import com.salaoAPI.repositories.ClienteRepository;
 import com.salaoAPI.repositories.InicioAtendimentoRepository;
 import com.salaoAPI.services.exceptions.DataBaseException;
@@ -40,17 +40,17 @@ public class ClienteService {
 		return novo;
 		});
 		cliente.setDataChegada(Instant.now());
-		cliente.setStatusAtendimento(OrderStatus.AGUARDANDO_FILA);
+		cliente.setStatusAtendimento(StatusAtendimento.AGUARDANDO_FILA);
 		cliente.setStatusPagamento(StatusPagamento.PENDENTE);
 		
 		return repository.save(cliente);
 	}
 		
 	public ClienteAtendimentoResponse chamarProximo() {
-		Cliente proximo = repository.findFirstByStatusAtendimentoOrderByDataChegadaAsc(OrderStatus.AGUARDANDO_FILA)
+		Cliente proximo = repository.findFirstByStatusAtendimentoOrderByDataChegadaAsc(StatusAtendimento.AGUARDANDO_FILA)
 				.orElseThrow(() -> new ResponseStatusException (HttpStatus.NOT_FOUND, "Fila Vazia"));
 		
-		proximo.setStatusAtendimento(OrderStatus.ATENDIMENTO);
+		proximo.setStatusAtendimento(StatusAtendimento.ATENDIMENTO);
 		
 		InicioAtendimento inicioAtendimento = new InicioAtendimento();
 		inicioAtendimento.setInicioAtendimento(Instant.now());
@@ -63,21 +63,21 @@ public class ClienteService {
 	}
 	
 	public List <Cliente> listarFila () {
-		return repository.findByStatusAtendimentoOrderByDataChegadaAsc(OrderStatus.AGUARDANDO_FILA);
+		return repository.findByStatusAtendimentoOrderByDataChegadaAsc(StatusAtendimento.AGUARDANDO_FILA);
 	}
 	
 	
-	public Cliente finalizarAtendimento (Long id , StatusRecebimento statusRecebimento) {
+	public Cliente finalizarAtendimento (Long id , FormaPagamento formaPagamento) {
 		Cliente cliente = repository.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "Cliente Nao Encontrado"));
 		
-		if (cliente.getStatusAtendimento()!=OrderStatus.ATENDIMENTO) {
+		if (cliente.getStatusAtendimento()!=StatusAtendimento.ATENDIMENTO) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "Cliente Nao Esta Em Atendimento ") ;
 		}
 	
-		cliente.setStatusAtendimento(OrderStatus.FINALIZADO);
+		cliente.setStatusAtendimento(StatusAtendimento.FINALIZADO);
 		cliente.setStatusPagamento(StatusPagamento.PAGO);
-		cliente.setStatusRecebimento(statusRecebimento);
+		cliente.setStatusRecebimento(formaPagamento);
 		cliente.setDataFinalizacao(Instant.now());
 		return repository.save(cliente);
 	}

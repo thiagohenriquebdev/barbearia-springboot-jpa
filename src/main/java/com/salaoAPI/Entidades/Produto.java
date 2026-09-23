@@ -1,4 +1,4 @@
-package com.salaoAPI.Entidades;
+package com.salaoAPI.entidades;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -30,6 +30,7 @@ public class Produto implements Serializable {
 	private String descricao;
 	private String imgURL;
 	private double valor;
+	private Integer quantidade;
 
 	@ManyToAny
 	@JoinTable(name = "tb_produto_categoria", joinColumns = @JoinColumn(name = "produto_id"), inverseJoinColumns = @JoinColumn(name = "categoria_id"))
@@ -41,13 +42,14 @@ public class Produto implements Serializable {
 	public Produto() {
 	}
 
-	public Produto(Long id, String nome, String descricao, String imgURL, double valor) {
+	public Produto(Long id, String nome, String descricao, String imgURL, double valor,Integer quantidade) {
 		super();
 		this.id = id;
 		this.nome = nome;
 		this.descricao = descricao;
 		this.imgURL = imgURL;
 		this.valor = valor;
+		this.quantidade=quantidade;
 	}
 
 	public Long getId() {
@@ -88,6 +90,14 @@ public class Produto implements Serializable {
 
 	public void setValor(double valor) {
 		this.valor = valor;
+	}
+
+	public Integer getQuantidade() {
+		return quantidade;
+	}
+
+	public void setQuantidade(Integer quantidade) {
+		this.quantidade = quantidade;
 	}
 
 	public Set<Categoria> getCategorias() {

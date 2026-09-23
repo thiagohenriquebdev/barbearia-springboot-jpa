@@ -1,4 +1,4 @@
-package com.salaoAPI.resources.Exceptions;
+package com.salaoAPI.resources.exceptions;
 
 import java.time.Instant;
 

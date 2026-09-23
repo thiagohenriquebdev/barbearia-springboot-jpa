@@ -1,4 +1,4 @@
-package com.salaoAPI.Entidades.enums;
+package com.salaoAPI.entidades.enums;
 
 public enum StatusPagamento {
 	PENDENTE,

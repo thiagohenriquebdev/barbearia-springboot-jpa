@@ -6,11 +6,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.salaoAPI.Entidades.InicioAtendimento;
+import com.salaoAPI.entidades.InicioAtendimento;
 import com.salaoAPI.repositories.InicioAtendimentoRepository;
 
 @Service
-public class OrderService {
+public class InicioAtendimentoService {
 
 	@Autowired
 	private InicioAtendimentoRepository repository;

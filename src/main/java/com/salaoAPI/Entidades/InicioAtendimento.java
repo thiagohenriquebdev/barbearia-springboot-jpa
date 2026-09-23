@@ -1,4 +1,4 @@
-package com.salaoAPI.Entidades;
+package com.salaoAPI.entidades;
 
 import java.time.Instant;
 import java.util.HashSet;

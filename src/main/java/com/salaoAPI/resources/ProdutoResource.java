@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.salaoAPI.Entidades.Produto;
+import com.salaoAPI.entidades.Produto;
 import com.salaoAPI.services.ProdutoService;
 
 @RestController

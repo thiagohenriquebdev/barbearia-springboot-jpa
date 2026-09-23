@@ -1,4 +1,4 @@
-package com.salaoAPI.Entidades;
+package com.salaoAPI.entidades;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -8,9 +8,9 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.salaoAPI.Entidades.enums.OrderStatus;
-import com.salaoAPI.Entidades.enums.StatusPagamento;
-import com.salaoAPI.Entidades.enums.StatusRecebimento;
+import com.salaoAPI.entidades.enums.StatusAtendimento;
+import com.salaoAPI.entidades.enums.StatusPagamento;
+import com.salaoAPI.entidades.enums.FormaPagamento;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,13 +40,13 @@ public class Cliente implements Serializable{
 	private Instant dataFinalizacao;
 	
 	@Enumerated (EnumType.STRING)
-	private OrderStatus statusAtendimento;
+	private StatusAtendimento statusAtendimento;
 	
 	@Enumerated (EnumType.STRING)
 	private StatusPagamento statusPagamento;
 	
 	@Enumerated (EnumType.STRING)
-	private StatusRecebimento statusRecebimento;
+	private FormaPagamento formaPagamento;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")
@@ -56,12 +56,12 @@ public class Cliente implements Serializable{
 	public Cliente() {
 	}
 	
-	public Cliente(Long id, String nome,OrderStatus statusAtendimento,StatusPagamento statusPagamento, Instant dataChegada,Instant dataFinalizacao,StatusRecebimento statusRecebimento) {
+	public Cliente(Long id, String nome,StatusAtendimento statusAtendimento,StatusPagamento statusPagamento, Instant dataChegada,Instant dataFinalizacao,FormaPagamento formaPagamento) {
 		this.id = id;
 		this.nome = nome;
 		this.statusAtendimento=statusAtendimento;
 		this.statusPagamento=statusPagamento;
-		this.statusRecebimento=statusRecebimento;
+		this.formaPagamento=formaPagamento;
 		this.dataChegada = dataChegada;
 		this.dataFinalizacao=dataFinalizacao;
 	}
@@ -90,11 +90,11 @@ public class Cliente implements Serializable{
 		return dataChegada;
 	}
 	
-	public OrderStatus getStatusAtendimento() {
+	public StatusAtendimento getStatusAtendimento() {
 		return statusAtendimento;
 	}
 
-	public void setStatusAtendimento(OrderStatus statusAtendimento) {
+	public void setStatusAtendimento(StatusAtendimento statusAtendimento) {
 		this.statusAtendimento = statusAtendimento;
 	}
 
@@ -106,12 +106,12 @@ public class Cliente implements Serializable{
 		this.statusPagamento = statusPagamento;
 	}
 
-	public StatusRecebimento getStatusRecebimento() {
-		return statusRecebimento;
+	public FormaPagamento getStatusRecebimento() {
+		return formaPagamento;
 	}
 
-	public void setStatusRecebimento(StatusRecebimento statusRecebimento) {
-		this.statusRecebimento = statusRecebimento;
+	public void setStatusRecebimento(FormaPagamento formaPagamento) {
+		this.formaPagamento = formaPagamento;
 	}
 
 	public void setDataChegada(Instant dataChegada) {

@@ -1,10 +1,10 @@
-package com.salaoAPI.Entidades;
+package com.salaoAPI.entidades;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.salaoAPI.Entidades.pk.OrderItemPK;
+import com.salaoAPI.entidades.pk.OrderItemPK;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;

@@ -16,10 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.salaoAPI.Entidades.Cliente;
-import com.salaoAPI.Entidades.enums.StatusRecebimento;
 import com.salaoAPI.dto.ClienteAtendimentoResponse;
+import com.salaoAPI.dto.EntrarFilaRequest;
 import com.salaoAPI.dto.PagamentoRecebido;
+import com.salaoAPI.entidades.Cliente;
+import com.salaoAPI.entidades.enums.FormaPagamento;
 import com.salaoAPI.services.ClienteService;
 
 import jakarta.validation.Valid;

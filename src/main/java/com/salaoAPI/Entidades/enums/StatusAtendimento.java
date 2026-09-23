@@ -1,6 +1,6 @@
-package com.salaoAPI.Entidades.enums;
+package com.salaoAPI.entidades.enums;
 
-public enum OrderStatus {
+public enum StatusAtendimento {
 	AGUARDANDO_FILA(1),
 	ATENDIMENTO(2),
 	FINALIZADO(3),
@@ -9,7 +9,7 @@ public enum OrderStatus {
 	
 	private int code;
 	
-	private OrderStatus(int code) {
+	private StatusAtendimento(int code) {
 		this.code=code;
 	}
 	
@@ -17,8 +17,8 @@ public enum OrderStatus {
 		return code;
 	}
 	
-	public static OrderStatus valueOf(int code)  {
-		for (OrderStatus value : OrderStatus.values()) {
+	public static StatusAtendimento valueOf(int code)  {
+		for (StatusAtendimento value : StatusAtendimento.values()) {
 			if (value.getCode() == code) {
 				return value;
 			}

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.salaoAPI.Entidades.Categoria;
+import com.salaoAPI.entidades.Categoria;
 import com.salaoAPI.services.CategoriaService;
 
 @RestController
