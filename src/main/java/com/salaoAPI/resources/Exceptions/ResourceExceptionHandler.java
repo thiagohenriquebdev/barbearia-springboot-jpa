@@ -30,4 +30,12 @@ public class ResourceExceptionHandler {
 		StandardError err = new StandardError(Instant.now(),status.value(),error,e.getMessage(),request.getRequestURI());
 		return ResponseEntity.status(status).body(err);
 	}
+	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<StandardError> generic(Exception e, HttpServletRequest request) {
+	    HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+	    StandardError err = new StandardError(Instant.now(), status.value(),
+	            e.getClass().getSimpleName(), e.getMessage(), request.getRequestURI());
+	    return ResponseEntity.status(status).body(err);
+	}
 }

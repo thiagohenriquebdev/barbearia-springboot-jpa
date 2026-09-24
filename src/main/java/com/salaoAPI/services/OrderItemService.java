@@ -38,12 +38,21 @@ public class OrderItemService {
 	
 	@Transactional
 	public OrderItem registraConsumo(long atendimentoId , long produtoId ,Integer quantidade) {
+		if (quantidade ==null || quantidade < 0 )  {
+			throw new DataBaseException("Quantidade Insuficiente no Estoque");
+		}
 		InicioAtendimento  atendimento =inicioAtendimentoRepository.findById(atendimentoId).orElseThrow(() -> new ResourceNotFoundException(atendimentoId));
 		
 		Produto produto = produtoRepository.findById(produtoId).orElseThrow(() -> new ResourceNotFoundException(produtoId));
 		
-		if (produto.getQuantidade() < quantidade) {
-			throw new DataBaseException("Estoque Insuficiente do Produto" + produto.getNome());
+		if (produto.getQuantidade() != quantidade ) {
+			if (produto.getQuantidade() < quantidade)
+			throw new DataBaseException("Estoque Insuficiente do Produto " 
+			+ produto.getNome() 
+			+ ": Disponivel " 
+			+ produto.getQuantidade() 
+			+ ", pedido " 
+			+ quantidade);;
 		}
 		
 		produto.setQuantidade(produto.getQuantidade() - quantidade);
@@ -67,7 +76,7 @@ public class OrderItemService {
 	}
 	
 	@Transactional
-	public void cancelar (long atendimentoId , long produtoId , Integer quantidade) {
+	public void cancelar (long atendimentoId , long produtoId , Integer quantidade) {	
 		OrderItemPK pk = new OrderItemPK();
 		
 		InicioAtendimento  atendimento =inicioAtendimentoRepository.findById(atendimentoId).orElseThrow(() -> new ResourceNotFoundException(atendimentoId));
