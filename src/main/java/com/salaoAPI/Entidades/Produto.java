@@ -9,6 +9,7 @@ import org.hibernate.annotations.ManyToAny;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,6 +32,9 @@ public class Produto implements Serializable {
 	private String imgURL;
 	private double valor;
 	private Integer quantidade;
+	
+	@Column (nullable=false)
+	private Boolean controlarEstoque=true;
 
 	@ManyToAny
 	@JoinTable(name = "tb_produto_categoria", joinColumns = @JoinColumn(name = "produto_id"), inverseJoinColumns = @JoinColumn(name = "categoria_id"))
@@ -104,6 +108,14 @@ public class Produto implements Serializable {
 		return categorias;
 	}
 	
+	public Boolean getControlarEstoque() {
+		return controlarEstoque;
+	}
+
+	public void setControlarEstoque(Boolean controlarEstoque) {
+		this.controlarEstoque = controlarEstoque;
+	}
+
 	@JsonIgnore
 	public Set <InicioAtendimento> getOrders() {
 		Set <InicioAtendimento> set  = new HashSet<>();
@@ -112,7 +124,19 @@ public class Produto implements Serializable {
 		}
 		return set;
 	}
+	
+	public boolean temEstoquePara(int produto) {
+		return !controlarEstoque || (quantidade !=null && quantidade >= produto);
+	}
+	
+	public void baixarEstoque (int produto) {
+		if (controlarEstoque) quantidade -=produto;
+	}
 
+	public void devolverEstoque(int produto) {
+		if (controlarEstoque) quantidade = (quantidade ==null ? 0 : quantidade) + produto;
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);

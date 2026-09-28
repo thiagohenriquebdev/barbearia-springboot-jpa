@@ -25,7 +25,6 @@ import jakarta.persistence.OneToMany;
 public class Cliente implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -33,10 +32,10 @@ public class Cliente implements Serializable{
 	@Column (nullable =false , unique = true)
 	private String nome; // entrada de dados do cliente (Dados Unicos , Nao Pode Ser Repetido)
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "HH:mm:ss",timezone = "America/Sao_Paulo")
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd/MM/yyyy HH:mm:ss",timezone = "America/Sao_Paulo")
 	private Instant dataChegada;
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "HH:mm:ss",timezone = "America/Sao_Paulo")
+	@JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd/MM/yyyy HH:mm:ss",timezone = "America/Sao_Paulo")
 	private Instant dataFinalizacao;
 	
 	@Enumerated (EnumType.STRING)

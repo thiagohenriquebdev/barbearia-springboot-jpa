@@ -37,44 +37,43 @@ public class OrderItemService {
 	private InicioAtendimentoRepository inicioAtendimentoRepository;
 	
 	@Transactional
-	public OrderItem registraConsumo(long atendimentoId , long produtoId ,Integer quantidade) {
-		if (quantidade ==null || quantidade < 0 )  {
-			throw new DataBaseException("Quantidade Insuficiente no Estoque");
-		}
-		InicioAtendimento  atendimento =inicioAtendimentoRepository.findById(atendimentoId).orElseThrow(() -> new ResourceNotFoundException(atendimentoId));
-		
-		Produto produto = produtoRepository.findById(produtoId).orElseThrow(() -> new ResourceNotFoundException(produtoId));
-		
-		if (produto.getQuantidade() != quantidade ) {
-			if (produto.getQuantidade() < quantidade)
-			throw new DataBaseException("Estoque Insuficiente do Produto " 
-			+ produto.getNome() 
-			+ ": Disponivel " 
-			+ produto.getQuantidade() 
-			+ ", pedido " 
-			+ quantidade);;
-		}
-		
-		produto.setQuantidade(produto.getQuantidade() - quantidade);
-		produtoRepository.save(produto);
-		
-		OrderItemPK pk = new OrderItemPK();
-		
-		pk.setOrder(atendimento);
-		pk.setProduto(produto);
-		
-		Optional<OrderItem> existente = orderItemRepository.findById(pk);
-		
-		if (existente.isPresent()) {
-			OrderItem item = existente.get();
-			item.setQuantidade(item.getQuantidade() + quantidade);
-			return orderItemRepository.save(item);
-		}
-		
-		OrderItem novoItem = new OrderItem(atendimento, produto, quantidade, produto.getValor());
-		return orderItemRepository.save(novoItem);			
+	public OrderItem registraConsumo(long atendimentoId, long produtoId, Integer quantidade) {
+	    if (quantidade == null || quantidade <= 0) {
+	        throw new DataBaseException("A quantidade deve ser maior que zero");
+	    }
+
+	    InicioAtendimento atendimento = inicioAtendimentoRepository.findById(atendimentoId)
+	            .orElseThrow(() -> new ResourceNotFoundException(atendimentoId));
+
+	    Produto produto = produtoRepository.findById(produtoId)
+	            .orElseThrow(() -> new ResourceNotFoundException(produtoId));
+
+	    if (Boolean.TRUE.equals(produto.getControlarEstoque())) {
+	        if (produto.getQuantidade() == null || produto.getQuantidade() < quantidade) {
+	            throw new DataBaseException("Estoque insuficiente de " + produto.getNome());
+	        }
+	        produto.setQuantidade(produto.getQuantidade() - quantidade);
+	        produtoRepository.save(produto);
+	    }
+
+	    OrderItemPK pk = new OrderItemPK();
+	    pk.setOrder(atendimento);
+	    pk.setProduto(produto);
+
+	    Optional<OrderItem> existente = orderItemRepository.findById(pk);
+
+	    if (existente.isPresent()) {
+	        OrderItem item = existente.get();
+	        item.setQuantidade(item.getQuantidade() + quantidade);
+	        return orderItemRepository.save(item);
+	    }
+
+	    OrderItem novoItem = new OrderItem(atendimento, produto, quantidade, produto.getValor());
+	    return orderItemRepository.save(novoItem);
 	}
 	
+
+
 	@Transactional
 	public void cancelar (long atendimentoId , long produtoId , Integer quantidade) {	
 		OrderItemPK pk = new OrderItemPK();
@@ -89,7 +88,7 @@ public class OrderItemService {
 		OrderItem item = orderItemRepository.findById(pk).orElseThrow(() -> new ResourceNotFoundException("Produto Nao Encontrado"));
 		
 		//Devolvendo Produto Pro Estoque
-		produto.setQuantidade(produto.getQuantidade() + quantidade);
+		produto.devolverEstoque(quantidade);
 		produtoRepository.save(produto);
 		
 		if (item.getQuantidade() > quantidade) {

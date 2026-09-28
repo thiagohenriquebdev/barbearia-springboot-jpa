@@ -16,7 +16,7 @@ public class InicioAtendimentoService {
 	private InicioAtendimentoRepository repository;
 	
 	public List <InicioAtendimento> findAll() {
-		return repository.findAll();
+		return repository.buscarTodosComItens();
 	}
 	
 	public InicioAtendimento FindById(Long id) {
