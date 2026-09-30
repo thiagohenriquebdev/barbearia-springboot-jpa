@@ -4,9 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,12 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.salaoAPI.entidades.Categoria;
-import com.salaoAPI.entidades.Produto;
 import com.salaoAPI.services.CategoriaService;
-import com.salaoAPI.services.exceptions.DataBaseException;
-import com.salaoAPI.services.exceptions.ResourceNotFoundException;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping (value = "/categorias")
 public class CategoriaResource {
@@ -32,13 +26,13 @@ public class CategoriaResource {
 	private CategoriaService service;
 	
 	@GetMapping
-	public ResponseEntity<List<Categoria>> findall() {
+	public ResponseEntity<List<Categoria>> findAll() {
 		return ResponseEntity.ok().body(service.findAll());
 	}
 	
 	@GetMapping (value = "/{id}")
-	public ResponseEntity<Categoria> FindById(@PathVariable Long id) {
-		Categoria obj =service.FindById(id);
+	public ResponseEntity<Categoria> findById(@PathVariable Long id) {
+		Categoria obj =service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 	

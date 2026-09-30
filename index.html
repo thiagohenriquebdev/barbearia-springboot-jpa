@@ -803,7 +803,8 @@
 			entrar: "POST /clientes/entrar",
 			chamar: "POST /clientes/proximo",
 			finalizar: "POST /clientes/finalizar/{id}",
-			campoPagamento: "statusRecebimento",
+			excluirCliente: "DELETE /clientes/{id}",
+			campoPagamento: "formaPagamento",
 			produtos: "GET /produtos",
 			novoProduto: "POST /produtos",
 			excluirProduto: "DELETE /produtos/{id}",
@@ -820,35 +821,50 @@
 			entrar: "Entrar na fila — body {nome}",
 			chamar: "Chamar próximo",
 			finalizar: "Finalizar — usa {id} do cliente",
+			excluirCliente: "Remover cliente da fila — usa {id}",
 			campoPagamento: "Nome do campo do PagamentoRecebido no body",
 			produtos: "Listar produtos",
-			novoProduto: "Cadastrar produto — body {nome, descricao, valor, quantidade, categorias}",
+			novoProduto: "Cadastrar produto — body {nome, descricao, valorDeVenda, valorDeCompra, quantidade, categorias}",
 			excluirProduto: "Excluir produto — usa {id}",
-			atualizarProduto: "Atualizar produto — body {nome, valor, quantidade}",
+			atualizarProduto: "Atualizar produto — body {nome, valorDeVenda, valorDeCompra, quantidade}",
 			categorias: "Listar categorias",
 			novaCategoria: "Cadastrar categoria — body {nome}",
 			atendimentos: "Listar atendimentos (InicioAtendimento)",
 			addItem: "Adicionar item (query params)",
 			removeItem: "Cancelar item (query params)",
 		};
-		const FORM0 = {nome: "", descricao: "", valor: "", quantidade: "", categoriaId: "", semEstoque: false};
+		const FORM0 = {nome: "", descricao: "", valor: "", valorCompra: "", quantidade: "", categoriaId: "", semEstoque: false};
 
 		const carregarCfg = () => {
 			try {return {...PADRAO, ...JSON.parse(localStorage.getItem("salaoCfg2") || "{}")};}
 			catch {return PADRAO;}
 		};
+
+		// o back-end manda data em formato brasileiro "dd/MM/yyyy HH:mm:ss", que o `new Date(string)`
+		// nativo não entende de forma confiável (ele espera MM/dd/yyyy ou ISO) — parser manual pra isso
+		const parseDataBR = (v) => {
+			if (typeof v !== "string") return null;
+			const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+			if (!m) return null;
+			const [, dd, mm, yyyy, hh, min, ss] = m;
+			const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd), Number(hh || 0), Number(min || 0), Number(ss || 0));
+			return isNaN(d) ? null : d;
+		};
 		const hora = (v) => {
 			if (!v) return "—";
 			if (typeof v === "string" && /^\d{1,2}:\d{2}(:\d{2})?$/.test(v)) return v;
-			let d;
-			if (Array.isArray(v)) d = new Date(v[0], v[1] - 1, v[2], v[3] || 0, v[4] || 0, v[5] || 0);
-			else if (typeof v === "number") d = new Date(v < 1e11 ? v * 1000 : v);
-			else d = new Date(v);
+			let d = parseDataBR(v);
+			if (!d) {
+				if (Array.isArray(v)) d = new Date(v[0], v[1] - 1, v[2], v[3] || 0, v[4] || 0, v[5] || 0);
+				else if (typeof v === "number") d = new Date(v < 1e11 ? v * 1000 : v);
+				else d = new Date(v);
+			}
 			return isNaN(d) ? String(v) : d.toLocaleTimeString("pt-BR", {hour: "2-digit", minute: "2-digit"});
 		};
 		const statusDe = (c) => String(c?.status || c?.statusAtendimento || "").toUpperCase();
 		const lista = (d) => (Array.isArray(d) ? d : d?.content || []);
-		const valorDe = (p) => p.valor ?? p.preco;
+		const valorDe = (p) => p.valorDeVenda ?? p.valor ?? p.preco;
+		const valorCompraDe = (p) => p.valorDeCompra ?? p.valorCompra ?? 0;
 		const semControle = (p) => p.controlarEstoque === false || p.quantidade == null;
 		const reais = (n) => (n != null ? `R$ ${Number(n).toFixed(2)}` : "—");
 		const nomeDaResposta = (r) => r?.nome ?? r?.clienteNome ?? r?.cliente?.nome ?? null;
@@ -879,20 +895,26 @@
 		// datas só com HH:mm:ss não trazem o dia: nesse caso considera que é de hoje
 		const ehHoje = (v) => {
 			if (!v || (typeof v === "string" && /^\d{1,2}:\d{2}(:\d{2})?$/.test(v))) return true;
-			const d = Array.isArray(v) ? new Date(v[0], v[1] - 1, v[2]) : new Date(typeof v === "number" && v < 1e11 ? v * 1000 : v);
+			let d = parseDataBR(v);
+			if (!d) d = Array.isArray(v) ? new Date(v[0], v[1] - 1, v[2]) : new Date(typeof v === "number" && v < 1e11 ? v * 1000 : v);
 			return isNaN(d) ? true : d.toDateString() === new Date().toDateString();
 		};
 		// mesma leitura de data usada acima, mas devolve o objeto Date (ou null se só vier a hora)
 		const dataDe = (v) => {
 			if (!v || (typeof v === "string" && /^\d{1,2}:\d{2}(:\d{2})?$/.test(v))) return null;
-			const d = Array.isArray(v) ? new Date(v[0], v[1] - 1, v[2], v[3] || 0, v[4] || 0, v[5] || 0) : new Date(typeof v === "number" && v < 1e11 ? v * 1000 : v);
+			let d = parseDataBR(v);
+			if (!d) d = Array.isArray(v) ? new Date(v[0], v[1] - 1, v[2], v[3] || 0, v[4] || 0, v[5] || 0) : new Date(typeof v === "number" && v < 1e11 ? v * 1000 : v);
 			return isNaN(d) ? null : d;
 		};
 		const inicioDaSemana = (d) => {const x = new Date(d); const dia = x.getDay(); x.setDate(x.getDate() - (dia === 0 ? 6 : dia - 1)); x.setHours(0, 0, 0, 0); return x;};
 		// sem data completa (API só manda HH:mm:ss) não dá para separar por período: mantém como se fosse do período atual
-		const noPeriodo = (v, periodo) => {
+		const noPeriodo = (v, periodo, dataEscolhida) => {
 			const d = dataDe(v);
 			if (!d) return true;
+			if (periodo === "data") {
+				if (!dataEscolhida) return true;
+				return d.toDateString() === dataEscolhida.toDateString();
+			}
 			const agora = new Date();
 			if (periodo === "semana") return d >= inicioDaSemana(agora);
 			if (periodo === "mes") return d.getFullYear() === agora.getFullYear() && d.getMonth() === agora.getMonth();
@@ -936,10 +958,18 @@
 			const [form, setForm] = useState(FORM0);
 			const [filtro, setFiltro] = useState("");
 			const [ajustes, setAjustes] = useState({});
+			const [editandoId, setEditandoId] = useState(null);
+			const [formEdicao, setFormEdicao] = useState(null);
 			const [categorias, setCategorias] = useState([]);
 			const [nomeCat, setNomeCat] = useState("");
 			const [atendidos, setAtendidos] = useState([]);
 			const [periodo, setPeriodo] = useState("dia");
+			const [dataEscolhida, setDataEscolhida] = useState(null);
+			const [mostrarCalendario, setMostrarCalendario] = useState(false);
+			// filtro do faturamento do topo: independente do período do relatório (que só afeta a seção "Relatório de vendas")
+			const [periodoTopo, setPeriodoTopo] = useState("dia");
+			const [dataEscolhidaTopo, setDataEscolhidaTopo] = useState(null);
+			const [mostrarConfigFaturamento, setMostrarConfigFaturamento] = useState(false);
 			const [info, setInfo] = useState("");
 			const [esq, setEsq] = useState(false);
 			const [dir, setDir] = useState(false);
@@ -985,6 +1015,14 @@
 			const atualizar = useCallback(async () => {
 				try {setFila(lista(await api("listar")));} catch { }
 			}, [api]);
+
+			const removerDaFila = async (c) => {
+				if (!window.confirm(`Remover ${c.nome} da fila? (chegou e foi embora sem ser atendido)`)) return;
+				try {
+					await api("excluirCliente", {vars: {id: c.id}});
+					setFila((l) => l.filter((x) => x.id !== c.id));
+				} catch { atualizar(); }
+			};
 
 			const carregarProdutos = useCallback(async () => {
 				try {
@@ -1101,6 +1139,23 @@
 				} catch { }
 			};
 
+			const mudarQtdItem = async (i, idx, delta) => {
+				if (delta > 0) {
+					try {
+						await api("addItem", {vars: {atendimentoId: atual.atendimentoId, produtoId: i.produtoId, quantidade: 1}});
+						setItens((l) => l.map((it, k) => (k === idx ? {...it, quantidade: it.quantidade + 1} : it)));
+						carregarProdutos();
+					} catch {carregarProdutos();}
+					return;
+				}
+				if (i.quantidade <= 1) {await removerItem(i, idx); return;}
+				try {
+					await api("removeItem", {vars: {atendimentoId: atual.atendimentoId, produtoId: i.produtoId, quantidade: 1}});
+					setItens((l) => l.map((it, k) => (k === idx ? {...it, quantidade: it.quantidade - 1} : it)));
+					carregarProdutos();
+				} catch {carregarProdutos();}
+			};
+
 			const finalizar = async () => {
 				try {
 					await api("finalizar", {vars: {id: atual.clienteId}, body: {[cfg.campoPagamento]: pagamento}});
@@ -1112,13 +1167,15 @@
 
 			const criarProduto = async (e) => {
 				e.preventDefault();
-				const body = {nome: form.nome.trim(), valor: Number(form.valor)};
+				const body = {nome: form.nome.trim(), valorDeVenda: Number(form.valor)};
 				if (form.descricao.trim()) body.descricao = form.descricao.trim();
 				if (!form.semEstoque && form.quantidade === "") {setErro("Informe a quantidade em estoque ou marque o ∞ para serviço."); return;}
 				body.controlarEstoque = !form.semEstoque;
 				if (!form.semEstoque) body.quantidade = Number(form.quantidade);
 				if (form.categoriaId === "") {setErro("Escolha a categoria do produto."); return;}
+				if (form.valorCompra === "") {setErro("Informe o valor de compra do produto."); return;}
 				body.categorias = [{id: Number(form.categoriaId)}];
+				body.valorDeCompra = Number(form.valorCompra);
 				try {
 					await api("novoProduto", {body});
 					setAvisoProd(`${body.nome} cadastrado.`);
@@ -1133,7 +1190,7 @@
 				const novo = (p.quantidade ?? 0) + sinal * n;
 				if (!(n >= 1) || novo < 0) return;
 				try {
-					await api("atualizarProduto", {vars: {id: p.id}, body: {nome: p.nome, valor: valorDe(p), quantidade: novo, controlarEstoque: true}});
+					await api("atualizarProduto", {vars: {id: p.id}, body: {nome: p.nome, valorDeVenda: valorDe(p), valorDeCompra: valorCompraDe(p), quantidade: novo, controlarEstoque: true}});
 					carregarProdutos();
 				} catch { }
 			};
@@ -1141,6 +1198,73 @@
 			const excluirProduto = async (p) => {
 				if (!window.confirm(`Excluir ${p.nome}?`)) return;
 				try {await api("excluirProduto", {vars: {id: p.id}}); carregarProdutos();} catch { }
+			};
+
+			const iniciarEdicao = (p) => {
+				setEditandoId(p.id);
+				setFormEdicao({
+					nome: p.nome,
+					valorDeVenda: valorDe(p) ?? "",
+					valorDeCompra: valorCompraDe(p) ?? "",
+					quantidade: semControle(p) ? "" : (p.quantidade ?? ""),
+					semEstoque: semControle(p),
+				});
+			};
+			const cancelarEdicao = () => {setEditandoId(null); setFormEdicao(null);};
+			const salvarEdicao = async (p) => {
+				if (!formEdicao.nome.trim()) {setErro("Informe o nome do produto."); return;}
+				if (formEdicao.valorDeVenda === "" || formEdicao.valorDeCompra === "") {setErro("Informe os valores de compra e de venda."); return;}
+				if (!formEdicao.semEstoque && formEdicao.quantidade === "") {setErro("Informe a quantidade em estoque ou marque o ∞ para serviço."); return;}
+				const body = {
+					nome: formEdicao.nome.trim(),
+					valorDeVenda: Number(formEdicao.valorDeVenda),
+					valorDeCompra: Number(formEdicao.valorDeCompra),
+					controlarEstoque: !formEdicao.semEstoque,
+					quantidade: formEdicao.semEstoque ? null : Number(formEdicao.quantidade),
+				};
+				try {
+					await api("atualizarProduto", {vars: {id: p.id}, body});
+					cancelarEdicao();
+					carregarProdutos();
+				} catch { }
+			};
+
+			// agora o valor de compra vem direto do backend (Produto.valorDeCompra), então o relatório
+			// já pode listar todos os produtos, sem depender mais de nada salvo no navegador
+			const linhasCompra = produtos.map((p) => {
+				const valorCompra = valorCompraDe(p);
+				const valorVenda = valorDe(p) ?? 0;
+				const qtd = semControle(p) ? 0 : (p.quantidade ?? 0);
+				return {
+					id: p.id,
+					nome: p.nome,
+					quantidade: semControle(p) ? "∞" : qtd,
+					valorCompra,
+					valorVenda,
+					pago: semControle(p) ? valorCompra : valorCompra * qtd,
+					vendido: semControle(p) ? valorVenda : valorVenda * qtd,
+				};
+			});
+			const totalPago = linhasCompra.reduce((t, l) => t + (l.pago || 0), 0);
+			const totalVendido = linhasCompra.reduce((t, l) => t + (l.vendido || 0), 0);
+
+			const baixarRelatorioCompra = () => {
+				const cab = ["ID", "Produto", "Quantidade", "Valor de compra", "Valor de venda", "Valor pago", "Valor vendido"];
+				const linhasCsv = linhasCompra.map((l) => [l.id, l.nome, l.quantidade, l.valorCompra, l.valorVenda, l.pago.toFixed(2), l.vendido.toFixed(2)]);
+				linhasCsv.push([]);
+				linhasCsv.push(["", "Total", "", "", "", totalPago.toFixed(2), totalVendido.toFixed(2)]);
+				const csv = [cab, ...linhasCsv]
+					.map((linha) => linha.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";"))
+					.join("\n");
+				const blob = new Blob(["﻿" + csv], {type: "text/csv;charset=utf-8;"});
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = `relatorio-de-compra-${new Date().toISOString().slice(0, 10)}.csv`;
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				URL.revokeObjectURL(url);
 			};
 
 			const chaveNomeCategoria = () => {
@@ -1190,7 +1314,7 @@
 
 			// relatório final do dia: usa a mesma base de /orders da lista de clientes atendidos
 			const rotuloForma = (f) => ({PIX: "Pix", CARTAO: "Cartão", DINHEIRO: "Dinheiro"}[f] || f);
-			const doPeriodo = atendidos.filter((o) => noPeriodo(o.inicioAtendimento, periodo));
+			const doPeriodo = atendidos.filter((o) => noPeriodo(o.inicioAtendimento, periodo, dataEscolhida));
 			const finalizados = doPeriodo.filter((o) => !!o.pagamento || statusDe(o.cliente).includes("FINAL"));
 			const totalDe = (o) => itensDoAtendimento(o).reduce((t, i) => t + valorItem(i) * (Number(i.quantidade) || 0), 0);
 			const formaDe = (o) => String(o.pagamento?.statusRecebimento ?? o.pagamento?.formaPagamento ?? o.cliente?.statusRecebimento ?? "NÃO INFORMADO").toUpperCase();
@@ -1212,6 +1336,14 @@
 			const faturamento = finalizados.reduce((t, o) => t + totalDe(o), 0);
 			const ticket = finalizados.length ? faturamento / finalizados.length : 0;
 			const emAndamento = doPeriodo.length - finalizados.length;
+
+			// contador "Atendidos" do topo: sempre só hoje, não segue o período escolhido no Relatório de vendas
+			const finalizadosHoje = atendidos.filter((o) => ehHoje(o.inicioAtendimento) && (!!o.pagamento || statusDe(o.cliente).includes("FINAL")));
+
+			// "Faturamento" do topo tem filtro próprio (engrenagem), independente do período do relatório
+			const doPeriodoTopo = atendidos.filter((o) => noPeriodo(o.inicioAtendimento, periodoTopo, dataEscolhidaTopo));
+			const finalizadosTopo = doPeriodoTopo.filter((o) => !!o.pagamento || statusDe(o.cliente).includes("FINAL"));
+			const faturamentoTopo = finalizadosTopo.reduce((t, o) => t + totalDe(o), 0);
 			const listaForma = Object.entries(porForma).sort((a, b) => b[1].valor - a[1].valor);
 			const listaVendidos = Object.entries(vendidos).sort((a, b) => b[1].valor - a[1].valor);
 			const estoqueBaixo = produtos.filter((p) => !semControle(p) && p.quantidade <= 3);
@@ -1238,8 +1370,52 @@
 						<div><small>Agora</small><strong><Relogio /></strong></div>
 						<div><small>Na fila</small><strong><Contador valor={esperando.length} /></strong></div>
 						<div><small>Em atendimento</small><strong><Contador valor={atual ? 1 : 0} /></strong></div>
-						<div><small>Atendidos</small><strong><Contador valor={finalizados.length} /></strong></div>
-						<div><small>Faturamento</small><strong><Contador valor={faturamento} fmt={(n) => reais(n)} /></strong></div>
+						<div><small>Atendidos hoje</small><strong><Contador valor={finalizadosHoje.length} /></strong></div>
+						<div style={{position: "relative"}}>
+							<small>
+								Faturamento{periodoTopo !== "dia" && ` (${periodoTopo === "data" && dataEscolhidaTopo ? dataEscolhidaTopo.toLocaleDateString("pt-BR") : ROTULOS_PERIODO[periodoTopo]})`}
+								{" "}
+								<button
+									className="ghost small"
+									onClick={() => setMostrarConfigFaturamento((v) => !v)}
+									title="Configurar período do faturamento"
+									aria-label="Configurar período do faturamento"
+									aria-expanded={mostrarConfigFaturamento}
+								>⚙️</button>
+							</small>
+							<strong><Contador valor={faturamentoTopo} fmt={(n) => reais(n)} /></strong>
+							{mostrarConfigFaturamento && (
+								<div style={{position: "absolute", bottom: "100%", right: 0, marginBottom: 8, zIndex: 20, minWidth: 180, padding: 10, background: "var(--card)", border: "1px solid rgba(255,255,255,.15)", borderRadius: 10, boxShadow: "0 4px 16px rgba(0,0,0,.4)"}}>
+									<div className="row" style={{flexWrap: "wrap", gap: 4, marginBottom: 6}}>
+										{Object.entries(ROTULOS_PERIODO).map(([k, r]) => (
+											<button
+												key={k}
+												className={periodoTopo === k ? "" : "ghost"}
+												aria-pressed={periodoTopo === k}
+												onClick={() => {setPeriodoTopo(k); setDataEscolhidaTopo(null);}}
+											>{r}</button>
+										))}
+										<button
+											className={periodoTopo === "data" ? "" : "ghost"}
+											aria-pressed={periodoTopo === "data"}
+											title="Escolher um dia específico"
+											onClick={() => setPeriodoTopo("data")}
+										>📅{periodoTopo === "data" && dataEscolhidaTopo ? ` ${dataEscolhidaTopo.toLocaleDateString("pt-BR")}` : ""}</button>
+									</div>
+									{periodoTopo === "data" && (
+										<input
+											type="date"
+											aria-label="Escolher data do faturamento"
+											onChange={(e) => {
+												if (!e.target.value) return;
+												const [ano, mes, dia] = e.target.value.split("-").map(Number);
+												setDataEscolhidaTopo(new Date(ano, mes - 1, dia));
+											}}
+										/>
+									)}
+								</div>
+							)}
+						</div>
 					</div>
 
 					<main className="colunas">
@@ -1256,14 +1432,31 @@
 										<div className="scroll">
 											<table>
 												<thead>
-													<tr><th>ID</th><th>Produto</th><th>Categoria</th><th className="num">Valor</th><th className="num">Estoque</th><th></th></tr>
+													<tr><th>ID</th><th>Produto</th><th>Categoria</th><th className="num">Compra</th><th className="num">Venda</th><th className="num">Estoque</th><th></th></tr>
 												</thead>
 												<tbody>
-													{visiveis.map((p) => (
+													{visiveis.map((p) => (editandoId === p.id ? (
+														<tr key={p.id}>
+															<td>{p.id}</td>
+															<td colSpan={5}>
+																<div className="row" style={{flexWrap: "wrap", gap: 6, alignItems: "center"}}>
+																	<input aria-label="Nome do produto" value={formEdicao.nome} onChange={(e) => setFormEdicao({...formEdicao, nome: e.target.value})} style={{minWidth: 120}} />
+																	<input aria-label="Valor de compra" title="Valor de compra" type="number" min="0" step="0.01" value={formEdicao.valorDeCompra} onChange={(e) => setFormEdicao({...formEdicao, valorDeCompra: e.target.value})} style={{width: 100}} placeholder="Compra" />
+																	<input aria-label="Valor de venda" title="Valor de venda" type="number" min="0" step="0.01" value={formEdicao.valorDeVenda} onChange={(e) => setFormEdicao({...formEdicao, valorDeVenda: e.target.value})} style={{width: 100}} placeholder="Venda" />
+																	<input aria-label="Quantidade em estoque" title="Quantidade em estoque" type="number" min="0" disabled={formEdicao.semEstoque} value={formEdicao.semEstoque ? "" : formEdicao.quantidade} onChange={(e) => setFormEdicao({...formEdicao, quantidade: e.target.value})} style={{width: 80}} placeholder={formEdicao.semEstoque ? "∞" : "Qtd."} />
+																	<button type="button" className={formEdicao.semEstoque ? "" : "ghost"} aria-pressed={formEdicao.semEstoque} title="Serviço, sem controle de estoque"
+																		onClick={() => setFormEdicao({...formEdicao, semEstoque: !formEdicao.semEstoque, quantidade: ""})}>∞</button>
+																	<button className="red small" onClick={() => salvarEdicao(p)}>Salvar</button>
+																	<button className="ghost small" onClick={cancelarEdicao}>Cancelar</button>
+																</div>
+															</td>
+														</tr>
+													) : (
 														<tr key={p.id}>
 															<td>{p.id}</td>
 															<td>{p.nome}</td>
 															<td>{p.categorias?.length ? p.categorias.map(nomeCategoria).join(", ") : <span className="low">sem categoria</span>}</td>
+															<td className="num">{reais(valorCompraDe(p))}</td>
 															<td className="num">{reais(valorDe(p))}</td>
 															<td className={"num" + (!semControle(p) && p.quantidade <= 3 ? " low" : "")}>
 																{semControle(p) ? "∞" : p.quantidade}
@@ -1273,11 +1466,12 @@
 																	<input aria-label={`Quantidade para ${p.nome}`} type="number" min="1" value={ajustes[p.id] ?? 1} disabled={semControle(p)} onChange={(e) => setAjustes({...ajustes, [p.id]: e.target.value})} style={{width: 80}} />
 																	<button className="ghost small" disabled={semControle(p) || qtdAjuste(p) < 1 || qtdAjuste(p) > p.quantidade} onClick={() => ajustarEstoque(p, -1)}>Remover</button>
 																	<button className="ghost small" disabled={semControle(p) || qtdAjuste(p) < 1} onClick={() => ajustarEstoque(p, 1)}>Adicionar</button>
+																	<button className="ghost small" onClick={() => iniciarEdicao(p)}>Editar</button>
 																	<button className="ghost small" onClick={() => excluirProduto(p)}>Excluir</button>
 																</div>
 															</td>
 														</tr>
-													))}
+													)))}
 												</tbody>
 											</table>
 										</div>
@@ -1296,7 +1490,10 @@
 										<label>Descrição (opcional)
 											<input value={form.descricao} onChange={(e) => setForm({...form, descricao: e.target.value})} />
 										</label>
-										<label>Valor (R$)
+										<label>Valor de compra (R$)
+											<input required type="number" min="0" step="0.01" value={form.valorCompra} onChange={(e) => setForm({...form, valorCompra: e.target.value})} />
+										</label>
+										<label>Valor de venda (R$)
 											<input required type="number" min="0" step="0.01" value={form.valor} onChange={(e) => setForm({...form, valor: e.target.value})} />
 										</label>
 										<div style={{display: "grid", gap: 4, fontSize: ".9rem"}}>
@@ -1328,6 +1525,42 @@
 
 							<section>
 								<details>
+									<summary>Relatório de compra</summary>
+									{linhasCompra.length === 0 ? (
+										<p className="vazio">Nenhum produto cadastrado ainda.</p>
+									) : (
+										<>
+											<div className="scroll">
+												<table>
+													<thead>
+														<tr><th>Produto</th><th className="num">Quantidade</th><th className="num">Valor pago</th><th className="num">Valor vendido</th></tr>
+													</thead>
+													<tbody>
+														{linhasCompra.map((l) => (
+															<tr key={l.id}>
+																<td>{l.nome}</td>
+																<td className="num">{l.quantidade}</td>
+																<td className="num">{reais(l.pago)}</td>
+																<td className="num">{reais(l.vendido)}</td>
+															</tr>
+														))}
+													</tbody>
+													<tfoot>
+														<tr><td><strong>Total</strong></td><td></td><td className="num"><strong>{reais(totalPago)}</strong></td><td className="num"><strong>{reais(totalVendido)}</strong></td></tr>
+													</tfoot>
+												</table>
+											</div>
+											<p className="muted">Valor pago = valor de compra × quantidade em estoque. Valor vendido = valor de venda × quantidade em estoque (potencial, se tudo for vendido).</p>
+										</>
+									)}
+									<div className="row" style={{justifyContent: "flex-end", marginTop: 8}}>
+										<button className="ghost" onClick={baixarRelatorioCompra} disabled={linhasCompra.length === 0}>Baixar</button>
+									</div>
+								</details>
+							</section>
+
+							<section>
+								<details>
 									<summary>Nova categoria</summary>
 									<form className="form" onSubmit={criarCategoria}>
 										<label>Nome da categoria
@@ -1350,18 +1583,39 @@
 							</section>
 
 							<section>
-								<div className="row" style={{justifyContent: "space-between"}}>
-									<h2 style={{margin: 0}}>Relatório de vendas</h2>
+								<details>
+									<summary>Relatório de vendas</summary>
+								<div className="row" style={{justifyContent: "flex-end", marginBottom: 8}}>
 									<button className="ghost" onClick={() => {carregarAtendidos(); carregarProdutos(); atualizar();}}>Recarregar</button>
 								</div>
 								<div className="row" role="tablist" aria-label="Período do relatório" style={{margin: "4px 0 10px"}}>
 									{Object.entries(ROTULOS_PERIODO).map(([k, r]) => (
 										<button key={k} className={periodo === k ? "" : "ghost"} aria-pressed={periodo === k} onClick={() => setPeriodo(k)}>{r}</button>
 									))}
+									<button
+										className={periodo === "data" ? "" : "ghost"}
+										aria-pressed={periodo === "data"}
+										title="Escolher um dia específico"
+										aria-label="Escolher um dia específico"
+										onClick={() => setMostrarCalendario((v) => !v)}
+									>📅{periodo === "data" && dataEscolhida ? ` ${dataEscolhida.toLocaleDateString("pt-BR")}` : ""}</button>
+									{mostrarCalendario && (
+										<input
+											type="date"
+											aria-label="Escolher data do relatório"
+											onChange={(e) => {
+												if (!e.target.value) return;
+												const [ano, mes, dia] = e.target.value.split("-").map(Number);
+												setDataEscolhida(new Date(ano, mes - 1, dia));
+												setPeriodo("data");
+												setMostrarCalendario(false);
+											}}
+										/>
+									)}
 								</div>
-								<p className="muted">{periodo === "dia" ? new Date().toLocaleDateString("pt-BR", {weekday: "long", day: "2-digit", month: "long", year: "numeric"}) : periodo === "semana" ? `Desde ${inicioDaSemana(new Date()).toLocaleDateString("pt-BR")}` : new Date().toLocaleDateString("pt-BR", {month: "long", year: "numeric"})}</p>
+								<p className="muted">{periodo === "data" ? (dataEscolhida ? dataEscolhida.toLocaleDateString("pt-BR", {weekday: "long", day: "2-digit", month: "long", year: "numeric"}) : "Escolha um dia no calendário acima.") : periodo === "dia" ? new Date().toLocaleDateString("pt-BR", {weekday: "long", day: "2-digit", month: "long", year: "numeric"}) : periodo === "semana" ? `Desde ${inicioDaSemana(new Date()).toLocaleDateString("pt-BR")}` : new Date().toLocaleDateString("pt-BR", {month: "long", year: "numeric"})}</p>
 								{atendidos.some((o) => !dataDe(o.inicioAtendimento)) && (periodo !== "dia") && (
-									<p className="muted">A API só manda a hora do atendimento (sem o dia), então "{ROTULOS_PERIODO[periodo]}" pode estar somando atendimentos de outros dias também. Veja a observação sobre isso mais abaixo.</p>
+									<p className="muted">A API só manda a hora do atendimento (sem o dia), então "{periodo === "data" ? "o dia escolhido" : ROTULOS_PERIODO[periodo]}" pode estar somando atendimentos de outros dias também. Veja a observação sobre isso mais abaixo.</p>
 								)}
 								<div className="kpis">
 									<div className="kpi"><span>Clientes atendidos no período</span><strong>{finalizados.length}</strong></div>
@@ -1402,6 +1656,7 @@
 								{estoqueBaixo.length === 0 ? <p className="vazio">Nenhum item com 3 unidades ou menos.</p> : (
 									<p>{estoqueBaixo.map((p) => `${p.nome} (${p.quantidade})`).join(", ")}</p>
 								)}
+								</details>
 							</section>
 						</div>
 
@@ -1447,7 +1702,11 @@
 												{itens.map((i, k) => (
 													<li className="cli" key={k}>
 														<span>{i.nome} <span className="muted">x{i.quantidade} · {reais(valorItem(i) * i.quantidade)}</span></span>
-														<button className="ghost small" onClick={() => removerItem(i, k)}>Cancelar</button>
+														<span className="row" style={{gap: 6}}>
+															<button className="ghost small" onClick={() => mudarQtdItem(i, k, -1)} aria-label={`Diminuir quantidade de ${i.nome}`}>−</button>
+															<button className="ghost small" onClick={() => mudarQtdItem(i, k, 1)} aria-label={`Aumentar quantidade de ${i.nome}`}>+</button>
+															<button className="ghost small" onClick={() => removerItem(i, k)}>Cancelar</button>
+														</span>
 													</li>
 												))}
 											</ul>
@@ -1473,7 +1732,15 @@
 										{esperando.map((c, idx) => (
 											<li className="cli" key={c.id ?? idx}>
 												<span><strong>{idx + 1}. {c.nome}</strong> <span className="muted">chegou {hora(c.dataChegada)}</span></span>
-												<span className="tag">{statusDe(c) || "NA FILA"}</span>
+												<span className="row" style={{gap: 6}}>
+													<span className="tag">{statusDe(c) || "NA FILA"}</span>
+													<button
+														className="ghost small"
+														onClick={() => removerDaFila(c)}
+														title="Remover da fila (cliente foi embora)"
+														aria-label={`Remover ${c.nome} da fila`}
+													>✕</button>
+												</span>
 											</li>
 										))}
 									</ul>
@@ -1481,8 +1748,9 @@
 							</section>
 
 							<section>
-								<div className="row" style={{justifyContent: "space-between", marginBottom: 12}}>
-									<h2 style={{margin: 0}}>Clientes atendidos hoje ({linhas.length})</h2>
+								<details>
+									<summary>Clientes atendidos hoje ({linhas.length})</summary>
+								<div className="row" style={{justifyContent: "flex-end", marginBottom: 12}}>
 									<button className="ghost" onClick={carregarAtendidos}>Recarregar</button>
 								</div>
 								{linhas.length === 0 ? <p className="vazio">Nenhum atendimento hoje.</p> : (
@@ -1509,6 +1777,7 @@
 								)}
 								{somaDia > 0 && <p><strong>Total do dia: {reais(somaDia)}</strong></p>}
 								<p className="muted">Cada linha é um atendimento. O total só aparece quando /orders devolve os itens, e o fim quando o back-end guarda a hora de finalização.</p>
+								</details>
 							</section>
 
 							<section>

@@ -41,12 +41,6 @@ public class Cliente implements Serializable{
 	@Enumerated (EnumType.STRING)
 	private StatusAtendimento statusAtendimento;
 	
-	@Enumerated (EnumType.STRING)
-	private StatusPagamento statusPagamento;
-	
-	@Enumerated (EnumType.STRING)
-	private FormaPagamento formaPagamento;
-	
 	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")
 	List<InicioAtendimento>servicos = new ArrayList<>();
@@ -55,14 +49,12 @@ public class Cliente implements Serializable{
 	public Cliente() {
 	}
 	
-	public Cliente(Long id, String nome,StatusAtendimento statusAtendimento,StatusPagamento statusPagamento, Instant dataChegada,Instant dataFinalizacao,FormaPagamento formaPagamento) {
+	public Cliente(Long id, String nome, Instant dataChegada,Instant dataFinalizacao,StatusAtendimento statusAtendimento) {
 		this.id = id;
 		this.nome = nome;
-		this.statusAtendimento=statusAtendimento;
-		this.statusPagamento=statusPagamento;
-		this.formaPagamento=formaPagamento;
 		this.dataChegada = dataChegada;
 		this.dataFinalizacao=dataFinalizacao;
+		this.statusAtendimento=statusAtendimento;
 	}
 
 	public long getId() {
@@ -88,30 +80,6 @@ public class Cliente implements Serializable{
 	public Instant getDataChegada() {
 		return dataChegada;
 	}
-	
-	public StatusAtendimento getStatusAtendimento() {
-		return statusAtendimento;
-	}
-
-	public void setStatusAtendimento(StatusAtendimento statusAtendimento) {
-		this.statusAtendimento = statusAtendimento;
-	}
-
-	public StatusPagamento getStatusPagamento() {
-		return statusPagamento;
-	}
-
-	public void setStatusPagamento(StatusPagamento statusPagamento) {
-		this.statusPagamento = statusPagamento;
-	}
-
-	public FormaPagamento getStatusRecebimento() {
-		return formaPagamento;
-	}
-
-	public void setStatusRecebimento(FormaPagamento formaPagamento) {
-		this.formaPagamento = formaPagamento;
-	}
 
 	public void setDataChegada(Instant dataChegada) {
 		this.dataChegada = dataChegada;
@@ -123,6 +91,14 @@ public class Cliente implements Serializable{
 
 	public void setDataFinalizacao(Instant dataFinalizacao) {
 		this.dataFinalizacao = dataFinalizacao;
+	}
+	
+	public StatusAtendimento getStatusAtendimento() {
+		return statusAtendimento;
+	}
+
+	public void setStatusAtendimento(StatusAtendimento statusAtendimento) {
+		this.statusAtendimento = statusAtendimento;
 	}
 
 	public List<InicioAtendimento> getServicos() {
@@ -143,7 +119,7 @@ public class Cliente implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		Cliente other = (Cliente) obj;
-		return id == other.id;
+		return Objects.equals(id,other.id);
 	}
 
 

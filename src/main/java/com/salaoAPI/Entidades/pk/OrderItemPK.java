@@ -1,14 +1,13 @@
 package com.salaoAPI.entidades.pk;
-
 import java.io.Serializable;
 import java.util.Objects;
-
 import com.salaoAPI.entidades.InicioAtendimento;
 import com.salaoAPI.entidades.Produto;
-
+import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+@Embeddable
 public class OrderItemPK implements Serializable{
 	private static final long serialVersionUID = 1L;
 	

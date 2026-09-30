@@ -66,7 +66,7 @@ public class OrderItem implements Serializable{
 	}
 	
 	public Double getSubTotal() {
-		return getPrice() * getQuantidade();
+		return getPrice() *(quantidade != null ? quantidade : 0);
 	}
 
 	@Override

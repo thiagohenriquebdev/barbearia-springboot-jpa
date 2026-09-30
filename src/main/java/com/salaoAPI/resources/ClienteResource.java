@@ -1,11 +1,8 @@
 package com.salaoAPI.resources;
 
-import java.net.URI;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +11,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.salaoAPI.dto.ClienteAtendimentoResponse;
 import com.salaoAPI.dto.EntrarFilaRequest;
@@ -24,13 +20,11 @@ import com.salaoAPI.services.ClienteService;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping (value = "/clientes")
 public class ClienteResource {
 	
-	@Autowired
-	private ClienteService service;
+	private final ClienteService service;
 	
 	public ClienteResource (ClienteService service) {
 		this.service=service;
@@ -49,7 +43,7 @@ public class ClienteResource {
 	@PostMapping ("/finalizar/{id}")
 	public ResponseEntity<Cliente> finalizar (@PathVariable Long id ,
 			@RequestBody @Valid PagamentoRecebido pagamento) {
-		Cliente cliente = service.finalizarAtendimento(id , pagamento.getStatusRecebimento());
+		Cliente cliente = service.finalizarAtendimento(id , pagamento.formaPagamento());
 		return ResponseEntity.ok().body(cliente);
 	}
 	
@@ -59,22 +53,15 @@ public class ClienteResource {
 	}
 	
 	@GetMapping ("/all")
-	public ResponseEntity<List<Cliente>> findall() {
+	public ResponseEntity<List<Cliente>> findAll() {
 		List <Cliente> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 	
 	@GetMapping (value = "/{id}")
-	public ResponseEntity<Cliente> FindById(@PathVariable Long id) {
-		Cliente obj =service.FindById(id);
+	public ResponseEntity<Cliente> findById(@PathVariable Long id) {
+		Cliente obj =service.findById(id);
 		return ResponseEntity.ok().body(obj);
-	}
-	
-	@PostMapping ("/nome")
-	public ResponseEntity<Cliente> insert (@RequestBody Cliente obj) {
-		obj =service.insert(obj);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).body(obj);
 	}
 	
 	@DeleteMapping (value = "/{id}")

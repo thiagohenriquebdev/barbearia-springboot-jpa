@@ -1,14 +1,12 @@
 package com.salaoAPI.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.salaoAPI.entidades.Categoria;
-import com.salaoAPI.entidades.Produto;
 import com.salaoAPI.repositories.CategoriaRepository;
 import com.salaoAPI.services.exceptions.DataBaseException;
 import com.salaoAPI.services.exceptions.ResourceNotFoundException;
@@ -23,9 +21,8 @@ public class CategoriaService {
 		return repository.findAll();
 	}
 	
-	public Categoria FindById(Long id) {
-		Optional<Categoria> obj = repository.findById(id);
-		return obj.get();
+	public Categoria findById(Long id) {
+		return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
 	public Categoria insert(Categoria insert) {

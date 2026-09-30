@@ -9,7 +9,6 @@ import com.salaoAPI.entidades.InicioAtendimento;
 import com.salaoAPI.entidades.OrderItem;
 import com.salaoAPI.entidades.Produto;
 import com.salaoAPI.entidades.pk.OrderItemPK;
-import com.salaoAPI.repositories.ClienteRepository;
 import com.salaoAPI.repositories.InicioAtendimentoRepository;
 import com.salaoAPI.repositories.OrderItemRepository;
 import com.salaoAPI.repositories.ProdutoRepository;
@@ -23,12 +22,6 @@ public class OrderItemService {
 	
 	@Autowired
 	private OrderItemRepository orderItemRepository;
-	
-	@Autowired
-	private ProdutoService produtoService;
-	
-	@Autowired
-	private ClienteRepository clienteRepository;
 	
 	@Autowired
 	private ProdutoRepository produtoRepository;
@@ -68,14 +61,17 @@ public class OrderItemService {
 	        return orderItemRepository.save(item);
 	    }
 
-	    OrderItem novoItem = new OrderItem(atendimento, produto, quantidade, produto.getValor());
+	    OrderItem novoItem = new OrderItem(atendimento, produto, quantidade, produto.getValorDeVenda());
 	    return orderItemRepository.save(novoItem);
 	}
 	
 
 
 	@Transactional
-	public void cancelar (long atendimentoId , long produtoId , Integer quantidade) {	
+	public void cancelar (long atendimentoId , long produtoId , Integer quantidade) {
+		if (quantidade == null || quantidade <= 0) {
+			throw new DataBaseException("A Quantidade deve ser maior que 0 ");
+		}
 		OrderItemPK pk = new OrderItemPK();
 		
 		InicioAtendimento  atendimento =inicioAtendimentoRepository.findById(atendimentoId).orElseThrow(() -> new ResourceNotFoundException(atendimentoId));
@@ -88,7 +84,8 @@ public class OrderItemService {
 		OrderItem item = orderItemRepository.findById(pk).orElseThrow(() -> new ResourceNotFoundException("Produto Nao Encontrado"));
 		
 		//Devolvendo Produto Pro Estoque
-		produto.devolverEstoque(quantidade);
+		int devolver = Math.min(quantidade,item.getQuantidade());
+		produto.devolverEstoque(devolver);
 		produtoRepository.save(produto);
 		
 		if (item.getQuantidade() > quantidade) {

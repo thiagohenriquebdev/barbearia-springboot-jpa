@@ -1,13 +1,13 @@
 package com.salaoAPI.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.salaoAPI.entidades.InicioAtendimento;
 import com.salaoAPI.repositories.InicioAtendimentoRepository;
+import com.salaoAPI.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class InicioAtendimentoService {
@@ -19,8 +19,7 @@ public class InicioAtendimentoService {
 		return repository.buscarTodosComItens();
 	}
 	
-	public InicioAtendimento FindById(Long id) {
-		Optional<InicioAtendimento> obj = repository.findById(id);
-		return obj.get();
+	public InicioAtendimento findById(Long id) {
+		return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 }

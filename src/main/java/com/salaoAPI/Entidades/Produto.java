@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.hibernate.annotations.ManyToAny;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -16,8 +14,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.PositiveOrZero;
 
 @Entity
 @Table(name = "id_produto")
@@ -30,14 +30,23 @@ public class Produto implements Serializable {
 	private String nome;
 	private String descricao;
 	private String imgURL;
-	private double valor;
+	
+	@Column
+	@PositiveOrZero
+	private Double valorDeVenda;
+	
+	@Column (name = "valor_compra")
+	@PositiveOrZero
+	private Double valorDeCompra;
 	private Integer quantidade;
 	
 	@Column (nullable=false)
 	private Boolean controlarEstoque=true;
 
-	@ManyToAny
-	@JoinTable(name = "tb_produto_categoria", joinColumns = @JoinColumn(name = "produto_id"), inverseJoinColumns = @JoinColumn(name = "categoria_id"))
+	@ManyToMany
+	@JoinTable(name = "tb_produto_categoria",
+	    joinColumns = @JoinColumn(name = "produto_id"),
+	    inverseJoinColumns = @JoinColumn(name = "categoria_id"))
 	private Set<Categoria> categorias = new HashSet<>();
 
 	@OneToMany (mappedBy = "id.produto")
@@ -46,13 +55,14 @@ public class Produto implements Serializable {
 	public Produto() {
 	}
 
-	public Produto(Long id, String nome, String descricao, String imgURL, double valor,Integer quantidade) {
+	public Produto(Long id, String nome, String descricao, String imgURL, Double valorDeVenda,Double valorDeCompra,Integer quantidade) {
 		super();
 		this.id = id;
 		this.nome = nome;
 		this.descricao = descricao;
 		this.imgURL = imgURL;
-		this.valor = valor;
+		this.valorDeVenda = valorDeVenda;
+		this.valorDeCompra=valorDeCompra;
 		this.quantidade=quantidade;
 	}
 
@@ -87,13 +97,21 @@ public class Produto implements Serializable {
 	public void setImgURL(String imgURL) {
 		this.imgURL = imgURL;
 	}
-
-	public double getValor() {
-		return valor;
+	
+	public Double getValorDeVenda() {
+		return valorDeVenda;
 	}
 
-	public void setValor(double valor) {
-		this.valor = valor;
+	public void setValorDeVenda(Double valorDeVenda) {
+		this.valorDeVenda = valorDeVenda;
+	}
+
+	public Double getValorDeCompra() {
+		return valorDeCompra;
+	}
+
+	public void setValorDeCompra(Double valorDeCompra) {
+		this.valorDeCompra = valorDeCompra;
 	}
 
 	public Integer getQuantidade() {

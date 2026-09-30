@@ -1,4 +1,8 @@
 package com.salaoAPI.dto;
 
-public record EntrarFilaRequest(String nome) {
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record EntrarFilaRequest(
+		@NotBlank(message = "Nome e Obrigatorio")
+		String nome
+		) {}
