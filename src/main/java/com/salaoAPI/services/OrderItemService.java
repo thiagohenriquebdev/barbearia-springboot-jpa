@@ -29,6 +29,8 @@ public class OrderItemService {
 	@Autowired
 	private InicioAtendimentoRepository inicioAtendimentoRepository;
 	
+	
+	//registrar produto relacionado ao consumo do cliente
 	@Transactional
 	public OrderItem registraConsumo(long atendimentoId, long produtoId, Integer quantidade) {
 	    if (quantidade == null || quantidade <= 0) {

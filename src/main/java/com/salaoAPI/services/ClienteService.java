@@ -24,14 +24,19 @@ import com.salaoAPI.services.exceptions.ResourceNotFoundException;
 public class ClienteService {
 
 	
+	
 	private final InicioAtendimentoRepository inicioRepository;
 	private final ClienteRepository clienteRepository;
+	
+	
 	
 	public ClienteService(InicioAtendimentoRepository inicioRepository,ClienteRepository clienteRepository) {
 		this.clienteRepository=clienteRepository;
 		this.inicioRepository=inicioRepository;
 	}
 	
+	
+	//Fila do Estilo FIFO
 	public Cliente entrarNaFila(String nome) {
 		Cliente cliente = clienteRepository.findByNome(nome).orElseGet(Cliente :: new );
 		cliente.setNome(nome);
@@ -39,7 +44,8 @@ public class ClienteService {
 		cliente.setStatusAtendimento(StatusAtendimento.AGUARDANDO_FILA);
 		return clienteRepository.save(cliente);
 	}
-		
+	
+	//chamada de cliente Parametro de datatime para definir o proximo
 	public ClienteAtendimentoResponse chamarProximo() {
 		Cliente proximo = clienteRepository.findFirstByStatusAtendimentoOrderByDataChegadaAsc(StatusAtendimento.AGUARDANDO_FILA)
 				.orElseThrow(() -> new ResponseStatusException (HttpStatus.NOT_FOUND, "Fila Vazia"));
@@ -61,11 +67,12 @@ public class ClienteService {
 		return new ClienteAtendimentoResponse(proximo.getId() ,proximo.getNome(),inicioAtendimento.getInicioAtendimento());
 	}
 	
+	//Clientes na fila 
 	public List <Cliente> listarFila () {
 		return clienteRepository.findByStatusAtendimentoOrderByDataChegadaAsc(StatusAtendimento.AGUARDANDO_FILA);
 	}
 	
-	
+	//Finalizar cliente
 	public Cliente finalizarAtendimento (Long clienteId, FormaPagamento formaPagamento) {
 		Cliente cliente = clienteRepository.findById(clienteId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND , "Cliente Nao Encontrado"));
@@ -89,18 +96,24 @@ public class ClienteService {
 	}
 	
 	
+	
+	//mostrar a lista de todos clientes
 	public List <Cliente> findAll() {
 		return clienteRepository.findAll();
 	}
 	
+	
+	//buscar por id
 	public Cliente findById(Long id) {
 		return clienteRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
+	//adicionar cliente
 	public Cliente insert (Cliente cliente) {
 		return clienteRepository.save(cliente);
 	}
 	
+	//deletar cliente inserido errado
 	public void delete (Long id) {
 		clienteRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 		try {
@@ -111,12 +124,15 @@ public class ClienteService {
 		}
 	}
 	
+	
+	//recebe um obj para fazer update
 	public Cliente update (Long id ,Cliente obj) {
 		Cliente entity =clienteRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 		updateData(entity,obj);
 		return clienteRepository.save(entity);
 	}
-
+	
+	//com o obj altera nome e data de chegada
 	private void updateData(Cliente entity, Cliente obj) {
 		entity.setNome(obj.getNome());
 		entity.setDataChegada(obj.getDataChegada());		

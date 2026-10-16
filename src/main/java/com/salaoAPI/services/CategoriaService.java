@@ -17,18 +17,23 @@ public class CategoriaService {
 	@Autowired
 	private CategoriaRepository repository;
 	
+	
+	//listar todas categorias
 	public List <Categoria> findAll() {
 		return repository.findAll();
 	}
 	
+	//buscar categoria 
 	public Categoria findById(Long id) {
 		return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
+	//Insert de categoria
 	public Categoria insert(Categoria insert) {
 		return repository.save(insert);
 	}
 	
+	//alterar alguma categoria
 	public Categoria update (Long id ,Categoria obj) {
 		Categoria entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 		updateData(entity,obj);
@@ -39,6 +44,8 @@ public class CategoriaService {
 		entity.setName(obj.getName());
 	}
 	
+	
+	//deletar uma categoria
 	public void delete(Long id) {
 		repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 		try {
