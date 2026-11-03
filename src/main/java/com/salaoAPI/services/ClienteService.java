@@ -3,7 +3,6 @@ package com.salaoAPI.services;
 import java.time.Instant;
 import java.util.List;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,7 +16,6 @@ import com.salaoAPI.entidades.enums.StatusAtendimento;
 import com.salaoAPI.entidades.enums.StatusPagamento;
 import com.salaoAPI.repositories.ClienteRepository;
 import com.salaoAPI.repositories.InicioAtendimentoRepository;
-import com.salaoAPI.services.exceptions.DataBaseException;
 import com.salaoAPI.services.exceptions.ResourceNotFoundException;
 
 @Service
@@ -116,26 +114,19 @@ public class ClienteService {
 	//deletar cliente inserido errado
 	public void delete (Long id) {
 		clienteRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
-		try {
+
 		clienteRepository.deleteById(id);
-		}
-		catch (DataIntegrityViolationException e) {
-			throw new DataBaseException(e.getMessage());
-		}
 	}
 	
 	
-	//recebe um obj para fazer update
-	public Cliente update (Long id ,Cliente obj) {
+	//Altera nome de um cliente inserido errado.
+	public Cliente update(Long id ,Cliente obj) {
 		Cliente entity =clienteRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
-		updateData(entity,obj);
+		
+		entity.setNome(obj.getNome());
 		return clienteRepository.save(entity);
 	}
 	
-	//com o obj altera nome e data de chegada
-	private void updateData(Cliente entity, Cliente obj) {
-		entity.setNome(obj.getNome());
-		entity.setDataChegada(obj.getDataChegada());		
-	}
+
 	
 }

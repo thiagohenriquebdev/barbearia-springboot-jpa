@@ -20,16 +20,24 @@ import jakarta.transaction.Transactional;
 @Service
 public class OrderItemService {
 	
-	@Autowired
-	private OrderItemRepository orderItemRepository;
-	
-	@Autowired
-	private ProdutoRepository produtoRepository;
-	
-	@Autowired
-	private InicioAtendimentoRepository inicioAtendimentoRepository;
+
+	private final OrderItemRepository orderItemRepository;
+	private final ProdutoRepository produtoRepository;
+	private final InicioAtendimentoRepository inicioAtendimentoRepository;
 	
 	
+	
+	
+	
+	public OrderItemService(OrderItemRepository orderItemRepository,ProdutoRepository produtoRepository,InicioAtendimentoRepository inicioAtendimentoRepository)
+	{
+		this.orderItemRepository = orderItemRepository;
+		this.produtoRepository = produtoRepository;
+		this.inicioAtendimentoRepository = inicioAtendimentoRepository;
+	}
+
+
+
 	//registrar produto relacionado ao consumo do cliente
 	@Transactional
 	public OrderItem registraConsumo(long atendimentoId, long produtoId, Integer quantidade) {
