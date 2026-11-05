@@ -2,57 +2,72 @@ package com.salaoAPI.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.salaoAPI.dto.CategoriaRequest;
+import com.salaoAPI.entidades.Categoria;
 import com.salaoAPI.entidades.Produto;
+import com.salaoAPI.repositories.CategoriaRepository;
 import com.salaoAPI.repositories.ProdutoRepository;
-import com.salaoAPI.services.exceptions.DataBaseException;
 import com.salaoAPI.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class ProdutoService {
 
-	@Autowired
-	private ProdutoRepository repository;
+	private final ProdutoRepository produtoRepository;
+	private final CategoriaRepository categoriaRepository;
 	
+	public ProdutoService(ProdutoRepository produtoRepository, CategoriaRepository categoriaRepository) {
+		this.produtoRepository = produtoRepository;
+		this.categoriaRepository=categoriaRepository;
+	}
+
+	//Lista de Produtos 
 	public List <Produto> findAll() {
-		return repository.findAll();
+		return produtoRepository.findAll();
 	}
 	
+	//Buscar Produtos 
 	public Produto findById(Long id) {
-		return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+		return produtoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 	}
 	
-	public Produto insert(Produto insert) {
-		return repository.save(insert);
+	//Adicionar Produtos  
+	public Produto adicionarProduto(Produto obj) {
+		
+		Long categoriaID =obj.getCategoria()
+				.iterator().next().getId();
+		
+		Categoria categoria = categoriaRepository.findById(categoriaID)
+				.orElseThrow(() -> new RuntimeException("Id Invalido!"));
+		
+		Produto produto = new Produto();
+		
+		produto.setNome(obj.getNome());
+		produto.setPreco(obj.getPreco());
+		produto.getCategoria().add(categoria);
+		
+		
+		return produtoRepository.save(produto);
 	}
 	
+	//Alterar Um Produto
 	public Produto update (Long id ,Produto obj) {
-		Produto entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
-		updateData(entity,obj);
-		return repository.save(entity);
-	}
-	
-	private void updateData(Produto entity,Produto obj) {
+		Produto entity = produtoRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException(id));
+
 		entity.setNome(obj.getNome());
-		entity.setValorDeVenda(obj.getValorDeVenda());
-		entity.setValorDeCompra(obj.getValorDeCompra());
+		entity.setPreco(obj.getPreco());
 		entity.setQuantidade(obj.getQuantidade());
-		entity.setDescricao(obj.getDescricao());
-		entity.setImgURL(obj.getImgURL());
 		entity.setControlarEstoque(obj.getControlarEstoque());
+
+		return produtoRepository.save(entity);
 	}
-	
+
 	public void delete(Long id) {
-		repository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
-		try {
-		repository.deleteById(id);
-		}
-		catch (DataIntegrityViolationException e) {
-			throw new DataBaseException(e.getMessage());
-		}
+		produtoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+
+		produtoRepository.deleteById(id);
 	}
 }
 	

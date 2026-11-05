@@ -28,16 +28,11 @@ public class Produto implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String nome;
-	private String descricao;
-	private String imgURL;
-	
+
 	@Column
 	@PositiveOrZero
-	private Double valorDeVenda;
+	private double preco;
 	
-	@Column (name = "valor_compra")
-	@PositiveOrZero
-	private Double valorDeCompra;
 	private Integer quantidade;
 	
 	@Column (nullable=false)
@@ -47,23 +42,26 @@ public class Produto implements Serializable {
 	@JoinTable(name = "tb_produto_categoria",
 	    joinColumns = @JoinColumn(name = "produto_id"),
 	    inverseJoinColumns = @JoinColumn(name = "categoria_id"))
-	private Set<Categoria> categorias = new HashSet<>();
+	private Set<Categoria> categoria = new HashSet<>();
 
 	@OneToMany (mappedBy = "id.produto")
 	private Set<OrderItem> items = new HashSet<>();
 	
+	
+	
 	public Produto() {
 	}
 
-	public Produto(Long id, String nome, String descricao, String imgURL, Double valorDeVenda,Double valorDeCompra,Integer quantidade) {
+	public Produto(Long id, String nome, double preco,Integer quantidade,Categoria categoria) {
 		super();
 		this.id = id;
 		this.nome = nome;
-		this.descricao = descricao;
-		this.imgURL = imgURL;
-		this.valorDeVenda = valorDeVenda;
-		this.valorDeCompra=valorDeCompra;
+		this.preco=preco;
 		this.quantidade=quantidade;
+		if (categoria !=null) {
+			this.categoria.add(categoria);
+		}
+		
 	}
 
 	public Long getId() {
@@ -82,36 +80,13 @@ public class Produto implements Serializable {
 		this.nome = nome;
 	}
 
-	public String getDescricao() {
-		return descricao;
-	}
-
-	public void setDescricao(String descricao) {
-		this.descricao = descricao;
-	}
-
-	public String getImgURL() {
-		return imgURL;
-	}
-
-	public void setImgURL(String imgURL) {
-		this.imgURL = imgURL;
-	}
 	
-	public Double getValorDeVenda() {
-		return valorDeVenda;
+	public Double getPreco() {
+		return preco;
 	}
 
-	public void setValorDeVenda(Double valorDeVenda) {
-		this.valorDeVenda = valorDeVenda;
-	}
-
-	public Double getValorDeCompra() {
-		return valorDeCompra;
-	}
-
-	public void setValorDeCompra(Double valorDeCompra) {
-		this.valorDeCompra = valorDeCompra;
+	public void setPreco(double preco) {
+		this.preco = preco;
 	}
 
 	public Integer getQuantidade() {
@@ -123,7 +98,7 @@ public class Produto implements Serializable {
 	}
 
 	public Set<Categoria> getCategorias() {
-		return categorias;
+		return categoria;
 	}
 	
 	public Boolean getControlarEstoque() {
@@ -132,6 +107,14 @@ public class Produto implements Serializable {
 
 	public void setControlarEstoque(Boolean controlarEstoque) {
 		this.controlarEstoque = controlarEstoque;
+	}
+
+	public Set<Categoria> getCategoria() {
+		return categoria;
+	}
+
+	public void setCategoria(Set<Categoria> categoria) {
+		this.categoria = categoria;
 	}
 
 	@JsonIgnore

@@ -25,18 +25,12 @@ public class OrderItemService {
 	private final ProdutoRepository produtoRepository;
 	private final InicioAtendimentoRepository inicioAtendimentoRepository;
 	
-	
-	
-	
-	
 	public OrderItemService(OrderItemRepository orderItemRepository,ProdutoRepository produtoRepository,InicioAtendimentoRepository inicioAtendimentoRepository)
 	{
 		this.orderItemRepository = orderItemRepository;
 		this.produtoRepository = produtoRepository;
 		this.inicioAtendimentoRepository = inicioAtendimentoRepository;
 	}
-
-
 
 	//registrar produto relacionado ao consumo do cliente
 	@Transactional
@@ -71,7 +65,7 @@ public class OrderItemService {
 	        return orderItemRepository.save(item);
 	    }
 
-	    OrderItem novoItem = new OrderItem(atendimento, produto, quantidade, produto.getValorDeVenda());
+	    OrderItem novoItem = new OrderItem(atendimento, produto, quantidade, produto.getPreco());
 	    return orderItemRepository.save(novoItem);
 	}
 	

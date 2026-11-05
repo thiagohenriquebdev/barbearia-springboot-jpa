@@ -21,10 +21,13 @@ import com.salaoAPI.services.CategoriaService;
 @RestController
 @RequestMapping (value = "/categorias")
 public class CategoriaResource {
-	
-	@Autowired
-	private CategoriaService service;
-	
+
+	private final CategoriaService service;
+		
+	public CategoriaResource(CategoriaService service) {
+		this.service = service;
+	}
+
 	@GetMapping
 	public ResponseEntity<List<Categoria>> findAll() {
 		return ResponseEntity.ok().body(service.findAll());

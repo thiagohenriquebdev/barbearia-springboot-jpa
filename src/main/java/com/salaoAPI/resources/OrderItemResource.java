@@ -1,6 +1,5 @@
 package com.salaoAPI.resources;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,8 +15,14 @@ import com.salaoAPI.services.OrderItemService;
 @RequestMapping("/atendimentos/{atendimentoId}/itens")
 public class OrderItemResource {
 
-	@Autowired
-	private OrderItemService orderItemService;
+	
+	private final OrderItemService orderItemService;
+	
+	
+
+	public OrderItemResource(OrderItemService orderItemService) {
+		this.orderItemService = orderItemService;
+	}
 
 	@PostMapping
 	public ResponseEntity<OrderItem> registra(

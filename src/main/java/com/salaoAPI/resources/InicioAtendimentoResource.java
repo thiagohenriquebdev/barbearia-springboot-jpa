@@ -16,9 +16,13 @@ import com.salaoAPI.services.InicioAtendimentoService;
 @RequestMapping (value = "/orders")
 public class InicioAtendimentoResource {
 	
-	@Autowired
-	private InicioAtendimentoService service;
 	
+	private final InicioAtendimentoService service;
+
+	public InicioAtendimentoResource(InicioAtendimentoService service) {
+		this.service = service;
+	}
+
 	@GetMapping
 	public ResponseEntity<List<InicioAtendimento>> findAll() {
 		List <InicioAtendimento> list = service.findAll();

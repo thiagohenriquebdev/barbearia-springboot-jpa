@@ -23,9 +23,12 @@ import com.salaoAPI.services.ProdutoService;
 @RequestMapping (value = "/produtos")
 public class ProdutoResource {
 	
-	@Autowired
-	private ProdutoService service;
-	
+	private final ProdutoService service;
+
+	public ProdutoResource(ProdutoService service) {
+		this.service = service;
+	}
+
 	@GetMapping
 	public ResponseEntity<List<Produto>> findAll() {
 		List <Produto> list = service.findAll();
@@ -40,7 +43,7 @@ public class ProdutoResource {
 	
 	@PostMapping
 	public ResponseEntity<Produto> insert(@RequestBody Produto obj) {
-		obj = service.insert(obj);
+		obj = service.adicionarProduto(obj);
 		URI uri =ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj);
 	}
